@@ -10,6 +10,7 @@
 #include "railx_2d_twisted_torus.h"
 #include "fat_tree.h"
 #include "hammingmesh.h"
+#include "nvswitch.h"
 #include "traffic_manager.h"
 
 System::System() {
@@ -46,6 +47,8 @@ System* System::New(const std::string& topology) {
     sys_ptr = new FatTree;
   else if (topology == "HammingMesh")
     sys_ptr = new HammingMesh;
+  else if (topology == "NVSwitch")
+    sys_ptr = new NVSwitchSystem;
   else {
     std::cerr << "No such a topology!" << std::endl;
     return nullptr;

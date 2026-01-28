@@ -16,7 +16,7 @@ void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
           dest1 = (src - 2) % traffic_scale_;
       }
       else // param->topology == "DragonflySW"
-		dest1 = (src + 1) % traffic_scale_;
+		    dest1 = (src + 1) % traffic_scale_;
       Packet* mess =
           new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest1), message_length_);
       packets.push_back(mess);
