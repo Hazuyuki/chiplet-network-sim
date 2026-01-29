@@ -1,4 +1,4 @@
-﻿#include <condition_variable>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 
@@ -114,6 +114,7 @@ int main(int argc, char* argv[]) {
   }
   param = new Parameters(config_file);
   network = System::New(param->topology);
+  network->init_flow_control();
   TM = new TrafficManager();
   gen.seed(1);
 

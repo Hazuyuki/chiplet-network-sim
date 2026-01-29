@@ -44,6 +44,7 @@ struct Parameters {
   int buffer_size;  // flits
   int vc_number;
   std::string router_stages;
+  std::string flow_control;  // "buffer" = 接收端预留, "credit" = 发送端 credit (NVSwitch 风格)
   int processing_time;     // cycles
 
   // Workloads
@@ -69,6 +70,7 @@ struct Parameters {
     std::cout << std::setw(20) << "Config File: " << config_file_path << std::endl;
     std::cout << std::setw(20) << "Topology: " << topology << std::endl;
     std::cout << std::setw(20) << "Router Stage Num: " << router_stages << std::endl;
+    std::cout << std::setw(20) << "Flow Control: " << flow_control << std::endl;
     std::cout << std::setw(20) << "Buffer Size: " << buffer_size << std::endl;
     std::cout << std::setw(20) << "VC number: " << vc_number << std::endl;
     std::cout << std::setw(20) << "Processing Time: " << processing_time << std::endl;

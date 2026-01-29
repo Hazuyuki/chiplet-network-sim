@@ -28,6 +28,7 @@ aux_source_directory(src/traffic TRAFFIC_FILES)
 # Remove test files from main executable (aux_source_directory returns relative paths)
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_simple.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_topology.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -36,10 +37,24 @@ if(MSVC)
 target_link_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:RELWITHDEBINFO>:/PROFILE>)
 endif()
 
-# Add test executable for NVSwitch topology
-option(BUILD_NVSWITCH_TEST "Build NVSwitch test executable" OFF)
+# NVSwitch 拓扑测试程序（默认构建，用于验证拓扑正确性）
+set(SRC_FILES_TOPOLOGY_TEST ${SRC_FILES})
+list(REMOVE_ITEM SRC_FILES_TOPOLOGY_TEST "src/main.cpp")
+add_executable(test_nvswitch_topology
+  src/topologies/test_nvswitch_topology.cpp
+  ${SRC_FILES_TOPOLOGY_TEST}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_nvswitch_topology PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_nvswitch_topology ${Boost_LIBRARIES})
+endif()
+
+# Add test executable for NVSwitch topology (full test suite, optional)
+option(BUILD_NVSWITCH_TEST "Build NVSwitch full test executable" OFF)
 if(BUILD_NVSWITCH_TEST)
-  # Create a copy of SRC_FILES without main.cpp
   set(TEST_SRC_FILES ${SRC_FILES})
   list(REMOVE_ITEM TEST_SRC_FILES "src/main.cpp")
   
@@ -55,7 +70,6 @@ if(BUILD_NVSWITCH_TEST)
     target_link_libraries(test_nvswitch ${Boost_LIBRARIES})
   endif()
   
-  # Add simple test
   add_executable(test_nvswitch_simple 
     src/topologies/test_nvswitch_simple.cpp
     ${TEST_SRC_FILES}

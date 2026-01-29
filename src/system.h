@@ -10,6 +10,7 @@ class System {
   static System* New(const std::string&);
   virtual ~System() {}
   virtual void reset();
+  void init_flow_control();  // 拓扑建好后调用：设置 upstream、初始化 credit（credit 流控时）
   virtual void read_config() = 0; // Each system (topology) inport its own parameters.
   virtual void print_config() {
     std::cout << "Number of cores: " << num_cores_ << std::endl;

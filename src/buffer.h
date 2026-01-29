@@ -34,6 +34,8 @@ class Buffer {
   void release_in_link(Packet&);
   bool allocate_sw_link();  
   void release_sw_link();
+  void set_upstream(class Node* node, int port);
+
   inline Packet* head_packet(int vcb) { return vc_head_packet[vcb].load(); }
   inline bool is_empty(int vcb) { return vc_head_packet[vcb].load() == nullptr; }
   inline void push_pkt(Packet* p, int vcb) {
@@ -59,6 +61,10 @@ class Buffer {
   int vc_num_;       // virtual channel number
 
   Channel channel_;
+
+  // Credit-based flow control: 上游节点与出端口，用于回报 credit
+  Node* upstream_node_{nullptr};
+  int upstream_port_{-1};
 
  private:
   // single thread: first come first serve

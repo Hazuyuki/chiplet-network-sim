@@ -1,5 +1,6 @@
 #include "system.h"
 
+#include "config.h"
 #include "dragonfly_chiplet.h"
 #include "dragonfly_sw.h"
 #include "multiple_chip_mesh.h"
@@ -62,6 +63,22 @@ void System::reset() {
   }
 }
 
+void System::init_flow_control() {
+  for (auto group : groups_) {
+    for (int i = 0; i < group->num_nodes_; i++) {
+      Node* node = group->get_node(i);
+      for (int port = 0; port < node->radix_; port++) {
+        if (node->link_buffers_[port] != nullptr) {
+          node->link_buffers_[port]->set_upstream(node, port);
+        }
+      }
+      if (param->flow_control == "credit") {
+        node->init_credits();
+      }
+    }
+  }
+}
+
 // All stages can be finished in one cycle
 void System::onestage(Packet& p) {
   if (p.candidate_channels_.empty()) routing(p);
@@ -103,18 +120,39 @@ void System::vc_allocate(Packet& p) const {
   VCInfo current_vc = p.head_trace();
   if (current_vc.buffer == nullptr ||
       current_vc.head_packet() == &p) {  // the packet is at the source or at the front of the queue
+    Node* sender = get_node(current_vc.buffer == nullptr ? p.source_ : current_vc.id);
+
+    if (param->flow_control == "credit") {
+      // Credit-based: 仅检查发送端 credit，不占用下游 buffer 计数
+      for (auto& vc : p.candidate_channels_) {
+        int port = sender->get_port_to_buffer(vc.buffer);
+        if (port < 0) continue;
+        if (vc.buffer->is_empty(vc.vcb) && sender->has_credit(port, vc.vcb, p.length_)) {
+          p.next_vc_ = vc;
+          return;
+        }
+      }
+      for (auto& vc : p.candidate_channels_) {
+        int port = sender->get_port_to_buffer(vc.buffer);
+        if (port < 0) continue;
+        if (sender->has_credit(port, vc.vcb, p.length_)) {
+          p.next_vc_ = vc;
+          return;
+        }
+      }
+      return;
+    }
+
+    // Buffer-based: 原有逻辑，在下游 buffer 上 allocate
     for (auto& vc : p.candidate_channels_) {
       if (vc.buffer->is_empty(vc.vcb))                        // try to allocate a empty vc
         if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {  // virtual cut-through
-          // allocating sucessed
           p.next_vc_ = vc;
           return;
         }
     }
-    // no empty vc, try to allocate a free vc
     for (auto& vc : p.candidate_channels_) {
       if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {  // packet switching
-        // allocating sucessed
         p.next_vc_ = vc;
         return;
       }

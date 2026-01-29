@@ -1,0 +1,4 @@
+/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles/ChipletNetworkSim.dir
+/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles/test_nvswitch_topology.dir
+/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles/edit_cache.dir
+/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles/rebuild_cache.dir

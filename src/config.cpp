@@ -9,6 +9,7 @@ Parameters::Parameters(const std::string &config_file) {
   buffer_size = params_ptree.get<int>("Network.buffer_size", 64);
   vc_number = params_ptree.get<int>("Network.vc_number", 3);
   router_stages = params_ptree.get<std::string>("Network.router_stages", "OneStage");
+  flow_control = params_ptree.get<std::string>("Network.flow_control", "buffer");
   processing_time = params_ptree.get<int>("Network.processing_time", 2);
 
   traffic = params_ptree.get<std::string>("Workload.traffic", "uniform");

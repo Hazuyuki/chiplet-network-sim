@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 #include "config.h"
 
 class Buffer;
@@ -50,11 +52,19 @@ class Node {
   virtual void set_node(Group* group, NodeID id);
   void reset();
 
+  // Credit-based flow control (used when flow_control == "credit")
+  void init_credits();
+  bool has_credit(int port, int vcb, int n) const;
+  void consume_credit(int port, int vcb, int n);
+  void return_credit(int port, int vcb, int n);
+  int get_port_to_buffer(Buffer* buf) const;
+
   NodeID id_;
   int& node_id_ = id_.node_id;
   int& group_id_ = id_.group_id;
   Group* group_;
   int radix_;
+  int vc_num_;
 
   // Input buffers
   std::vector<Buffer*> in_buffers_;
@@ -67,4 +77,7 @@ class Node {
 
   // A collection of { node_id, in_buffer, link_node, link_buffer }
   std::vector<Port*> ports_;
+
+  // Credit-based flow control: credits_[port * vc_num_ + vcb] = 可向该 port/VC 发送的 flit 数
+  std::atomic_int* credits_{nullptr};
 };

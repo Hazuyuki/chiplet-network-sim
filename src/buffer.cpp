@@ -1,5 +1,6 @@
 #include "buffer.h"
 
+#include "config.h"
 #include "packet.h"
 
 VCInfo::VCInfo(Buffer* buffer_, int vc_, NodeID id_) {
@@ -60,10 +61,19 @@ bool Buffer::allocate_buffer(int vcb, int n) {
 }
 
 void Buffer::release_buffer(int vcb, int n) {
-  int buffer = vc_buffer_[vcb].load();
-  while (!vc_buffer_[vcb].compare_exchange_weak(buffer, buffer + n))
-    ;
-  assert(vc_buffer_[vcb].load() <= buffer_size_);
+  if (param->flow_control == "credit" && upstream_node_ != nullptr && upstream_port_ >= 0) {
+    upstream_node_->return_credit(upstream_port_, vcb, n);
+  } else {
+    int buffer = vc_buffer_[vcb].load();
+    while (!vc_buffer_[vcb].compare_exchange_weak(buffer, buffer + n))
+      ;
+    assert(vc_buffer_[vcb].load() <= buffer_size_);
+  }
+}
+
+void Buffer::set_upstream(Node* node, int port) {
+  upstream_node_ = node;
+  upstream_port_ = port;
 }
 
 bool Buffer::allocate_in_link(Packet& p) {
@@ -74,6 +84,9 @@ bool Buffer::allocate_in_link(Packet& p) {
   else if (in_link_used_.compare_exchange_strong(link_used_state, true)) {
     // link is allocated by this thread (packet)
     if (node_->id_ != p.destination_) {
+      if (param->flow_control == "credit" && upstream_node_ != nullptr && upstream_port_ >= 0) {
+        upstream_node_->consume_credit(upstream_port_, vcb, p.length_);
+      }
       push_pkt(&p, vcb);
     }
     return true;
