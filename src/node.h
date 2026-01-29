@@ -57,6 +57,7 @@ class Node {
   bool has_credit(int port, int vcb, int n) const;
   void consume_credit(int port, int vcb, int n);
   void return_credit(int port, int vcb, int n);
+  int get_credit(int port, int vcb) const;  // 当前 (port,vcb) 的 credit 数，用于测试/调试
   int get_port_to_buffer(Buffer* buf) const;
 
   NodeID id_;

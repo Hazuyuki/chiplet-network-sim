@@ -89,6 +89,11 @@ void Node::return_credit(int port, int vcb, int n) {
   }
 }
 
+int Node::get_credit(int port, int vcb) const {
+  if (credits_ == nullptr || port < 0 || port >= radix_) return -1;
+  return credits_[port * vc_num_ + vcb].load();
+}
+
 int Node::get_port_to_buffer(Buffer* buf) const {
   if (buf == nullptr) return -1;
   for (int i = 0; i < radix_; ++i) {

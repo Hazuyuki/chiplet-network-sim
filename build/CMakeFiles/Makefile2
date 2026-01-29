@@ -65,6 +65,7 @@ CMAKE_BINARY_DIR = /share/zhuyu-nfs/chiplet-network-sim/build
 # The main recursive "all" target.
 all: CMakeFiles/ChipletNetworkSim.dir/all
 all: CMakeFiles/test_nvswitch_topology.dir/all
+all: CMakeFiles/test_credit_flow_control.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -74,6 +75,7 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/ChipletNetworkSim.dir/clean
 clean: CMakeFiles/test_nvswitch_topology.dir/clean
+clean: CMakeFiles/test_credit_flow_control.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -109,7 +111,7 @@ CMakeFiles/ChipletNetworkSim.dir/clean:
 CMakeFiles/test_nvswitch_topology.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52 "Built target test_nvswitch_topology"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78 "Built target test_nvswitch_topology"
 .PHONY : CMakeFiles/test_nvswitch_topology.dir/all
 
 # Build rule for subdir invocation for target.
@@ -127,6 +129,32 @@ test_nvswitch_topology: CMakeFiles/test_nvswitch_topology.dir/rule
 CMakeFiles/test_nvswitch_topology.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/clean
 .PHONY : CMakeFiles/test_nvswitch_topology.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_credit_flow_control.dir
+
+# All Build rule for target.
+CMakeFiles/test_credit_flow_control.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52 "Built target test_credit_flow_control"
+.PHONY : CMakeFiles/test_credit_flow_control.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_credit_flow_control.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 26
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_credit_flow_control.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_credit_flow_control.dir/rule
+
+# Convenience name for target.
+test_credit_flow_control: CMakeFiles/test_credit_flow_control.dir/rule
+.PHONY : test_credit_flow_control
+
+# clean rule for target.
+CMakeFiles/test_credit_flow_control.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/clean
+.PHONY : CMakeFiles/test_credit_flow_control.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
