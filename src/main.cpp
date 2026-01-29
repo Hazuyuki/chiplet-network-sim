@@ -55,9 +55,11 @@ static void worker(std::vector<Packet*>& packets, System* s, int id) {
 }
 
 // Run one cycle of the simulation by iterating through all packets twice:
-// 1. Release the link status and delete arrived packets
+// 1. Process pending credit returns (credit RTT), release link status, delete arrived packets
 // 2. Update the packets
-static void run_one_cycle(std::vector<Packet*>& vec_pkts, System* system) {
+static void run_one_cycle(std::vector<Packet*>& vec_pkts, System* system, uint64_t cycle) {
+  param->current_simulation_cycle = cycle;
+  network->process_pending_credits(cycle);
   // single thread, fisrt come first serve
   uint64_t j = 0;
   uint64_t vecsize = vec_pkts.size();
@@ -144,7 +146,7 @@ int main(int argc, char* argv[]) {
                           TM->CTX->input_trheader->num_cycles / network->num_cores_;
     for (uint64_t i = 0; i < TM->CTX->input_trheader->num_cycles + 1000; i++) {
       TM->genMes(all_packets, i);
-      run_one_cycle(all_packets, network);
+      run_one_cycle(all_packets, network, i);
     }
     TM->print_statistics();
     nt_close_trfile(TM->CTX);
@@ -153,9 +155,11 @@ int main(int argc, char* argv[]) {
     for (int i = 2; i < 10; i++) {
       TM->reset();
       TM->data_size = TM->traffic_scale_ * (1 << i);
+      uint64_t sim_cycle = 0;
       while (true){
         TM->genMes(all_packets);
-        run_one_cycle(all_packets, network);
+        run_one_cycle(all_packets, network, sim_cycle);
+        sim_cycle++;
         if (TM->is_done) break;
       }
       // TM->print_statistics();
@@ -170,14 +174,14 @@ int main(int argc, char* argv[]) {
       //  warm up for 50% of the simulation time
       for (uint64_t i = 0; i < param->simulation_time / 2; i++) {
         TM->genMes(all_packets);
-        run_one_cycle(all_packets, network);
+        run_one_cycle(all_packets, network, i);
       }
       TM->reset();
       for (uint64_t i = 0;
            i < param->simulation_time && TM->message_timeout_ <= param->timeout_limit;
            i++) {
         TM->genMes(all_packets);
-        run_one_cycle(all_packets, network);
+        run_one_cycle(all_packets, network, i);
       }
       TM->print_statistics();
       if (TM->receiving_rate() > maximum_receiving_rate)
@@ -190,8 +194,8 @@ int main(int argc, char* argv[]) {
                   << " flits/(node*cycle)" << std::endl;
         saturated = true;
 #ifdef DEBUG // check deadlock
-        for (uint64_t i = 0; i < param->simulation_time * 2; i++) {  // try to drain
-          run_one_cycle(all_packets, network);
+        for (uint64_t drain_i = 0; drain_i < param->simulation_time * 2; drain_i++) {  // try to drain
+          run_one_cycle(all_packets, network, drain_i);
           if (all_packets.size() == 0) {
             std::cerr << "No deadlock!" << std::endl;
             break;

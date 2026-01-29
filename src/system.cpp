@@ -58,8 +58,37 @@ System* System::New(const std::string& topology) {
 }
 
 void System::reset() {
+  {
+    std::lock_guard<std::mutex> lock(pending_credit_mutex_);
+    pending_credit_returns_.clear();
+  }
   for (auto chip : groups_) {
     chip->reset();
+  }
+}
+
+void System::push_pending_credit_return(uint64_t delivery_cycle, Node* node, int port, int vcb,
+                                        int n) {
+  std::lock_guard<std::mutex> lock(pending_credit_mutex_);
+  pending_credit_returns_.push_back({delivery_cycle, node, port, vcb, n});
+}
+
+void System::process_pending_credits(uint64_t current_cycle) {
+  std::vector<PendingCreditReturn> to_deliver;
+  {
+    std::lock_guard<std::mutex> lock(pending_credit_mutex_);
+    auto it = pending_credit_returns_.begin();
+    while (it != pending_credit_returns_.end()) {
+      if (it->delivery_cycle <= current_cycle) {
+        to_deliver.push_back(*it);
+        it = pending_credit_returns_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+  for (auto& e : to_deliver) {
+    e.node->return_credit(e.port, e.vcb, e.n);
   }
 }
 

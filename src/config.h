@@ -15,7 +15,7 @@ const std::vector<std::string> router_stage_nums = {"OneStage", "TwoStage", "Thr
 const std::vector<std::string> topologies = {"SingleChipMesh", "DragonflySW",
                                                   "DragonflyChiplet"};
 const std::vector<std::string> traffic_patterns = {
-    "test",       "uniform",     "hotspot",  "bitcomplement", "bittranspose", "bitreverse",
+    "test",       "uniform",     "single_flow", "hotspot",  "bitcomplement", "bittranspose", "bitreverse",
     "bitshuffle", "adversarial", "sd_trace", "netrace", "ring_all_reduce", "ring_all_reduce_bi"};
 
 // physical link between two nodes, including width (bandwidth) and latency
@@ -45,6 +45,7 @@ struct Parameters {
   int vc_number;
   std::string router_stages;
   std::string flow_control;  // "buffer" = 接收端预留, "credit" = 发送端 credit (NVSwitch 风格)
+  int credit_return_delay;   // credit 回报延迟 (cycles)，0=立即回报，>0 模拟 RTT
   int processing_time;     // cycles
 
   // Workloads
@@ -61,6 +62,8 @@ struct Parameters {
   int threads;
   // Each thread fetches issue_width packets at a time
   int issue_width;
+  // 仿真当前周期（由 main 在每周期初设置，供 credit 延迟回报用）
+  uint64_t current_simulation_cycle{0};
 
   // I/O Files
   std::string trace_file, netrace_file, output_file, log_file;
@@ -71,6 +74,7 @@ struct Parameters {
     std::cout << std::setw(20) << "Topology: " << topology << std::endl;
     std::cout << std::setw(20) << "Router Stage Num: " << router_stages << std::endl;
     std::cout << std::setw(20) << "Flow Control: " << flow_control << std::endl;
+    std::cout << std::setw(20) << "Credit Return Delay: " << credit_return_delay << std::endl;
     std::cout << std::setw(20) << "Buffer Size: " << buffer_size << std::endl;
     std::cout << std::setw(20) << "VC number: " << vc_number << std::endl;
     std::cout << std::setw(20) << "Processing Time: " << processing_time << std::endl;

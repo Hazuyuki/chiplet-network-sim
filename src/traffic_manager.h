@@ -19,6 +19,7 @@ class TrafficManager {
   void reset();
   void genMes(std::vector<Packet*>& packets, uint64_t cyc = 0);
   Packet* uniform_mess();
+  Packet* single_flow_mess();  // 单发单收：固定 node0 -> node1，用于单链路公式验证
   Packet* intra_group_uniform_mess();
   Packet* hotspot_mess();
   Packet* bitcomplement_mess();

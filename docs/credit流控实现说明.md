@@ -192,3 +192,24 @@
 - 因此原有 buffer 流控行为不变，仅新增 credit 路径和配置项。
 
 以上即为支持 credit 流控所修改的代码与实现方式。
+
+---
+
+## 五、修改 Credit 回报 RTT（延迟）
+
+**含义**：真实硬件里 credit 从接收端回到发送端有链路延迟。本仿真用 **credit 回报延迟（cycles）** 模拟这段 RTT。
+
+**配置**（`config.h` / `config.cpp`）：
+
+- `int credit_return_delay`：credit 回报延迟（周期数），默认 0 = 立即回报（与之前行为一致）。
+- ini 中在 `[Network]` 下增加：`credit_return_delay = 2`（示例：2 周期后发送端才收到 credit）。
+
+**实现要点**：
+
+1. **当前周期**：main 在每周期初把 `param->current_simulation_cycle` 设为该周期号，并在 `run_one_cycle(..., cycle)` 里先调用 `network->process_pending_credits(cycle)`，再执行释放/更新。
+2. **延迟回报**：当包尾离开某 buffer 时，若 `credit_return_delay > 0`，不立刻 `return_credit()`，而是把一次回报事件入队：`delivery_cycle = current_simulation_cycle + credit_return_delay`，`network->push_pending_credit_return(delivery_cycle, node, port, vcb, n)`。
+3. **到期处理**：每周期初 `process_pending_credits(current_cycle)` 会取出所有 `delivery_cycle <= current_cycle` 的事件，对对应 (node, port, vcb) 调用 `return_credit(..., n)`。
+4. **线程安全**：pending 队列用 `pending_credit_mutex_` 保护，多线程下 `release_buffer` 入队、主线程 `process_pending_credits` 出队并执行回报。
+5. **重置**：`System::reset()` 会清空 `pending_credit_returns_`，避免跨 run 的残留事件。
+
+**使用**：在 `[Network]` 中设置 `credit_return_delay = N`（N 为周期数）即可模拟 N 周期的 credit 回报 RTT。

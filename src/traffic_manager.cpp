@@ -155,6 +155,8 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
       mess = new Packet(NodeID(12, 60), NodeID(7, 36), message_length_);
     else if (traffic_ == "uniform")
       mess = uniform_mess();
+    else if (traffic_ == "single_flow")
+      mess = single_flow_mess();
     else if (traffic_ == "intra_group_uniform")
       mess = intra_group_uniform_mess();
     else if (traffic_ == "hotspot")
@@ -186,6 +188,11 @@ Packet* TrafficManager::uniform_mess() {
     if (dest != src) break;
   }
   return new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
+}
+
+Packet* TrafficManager::single_flow_mess() {
+  // 单发单收：固定 0 -> 1，traffic_scale 应为 1 使注入率表示该单流速率
+  return new Packet(network->int_to_nodeid(0), network->int_to_nodeid(1), message_length_);
 }
 
 Packet* TrafficManager::intra_group_uniform_mess() {

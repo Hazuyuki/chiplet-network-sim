@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "packet.h"
+#include "system.h"
 
 VCInfo::VCInfo(Buffer* buffer_, int vc_, NodeID id_) {
   buffer = buffer_;
@@ -62,7 +63,12 @@ bool Buffer::allocate_buffer(int vcb, int n) {
 
 void Buffer::release_buffer(int vcb, int n) {
   if (param->flow_control == "credit" && upstream_node_ != nullptr && upstream_port_ >= 0) {
-    upstream_node_->return_credit(upstream_port_, vcb, n);
+    if (param->credit_return_delay <= 0) {
+      upstream_node_->return_credit(upstream_port_, vcb, n);
+    } else {
+      uint64_t delivery = param->current_simulation_cycle + param->credit_return_delay;
+      network->push_pending_credit_return(delivery, upstream_node_, upstream_port_, vcb, n);
+    }
   } else {
     int buffer = vc_buffer_[vcb].load();
     while (!vc_buffer_[vcb].compare_exchange_weak(buffer, buffer + n))
