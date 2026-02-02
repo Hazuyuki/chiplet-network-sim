@@ -1,4 +1,8 @@
 #include "node.h"
+
+#include <climits>
+#include <cstdint>
+
 #include "buffer.h"
 #include "config.h"
 
@@ -27,6 +31,8 @@ Node::Node(int radix, int vc_num, int buffer_size, Channel channel) {
 Node::~Node() {
   delete[] credits_;
   credits_ = nullptr;
+  delete[] port_usage_;
+  port_usage_ = nullptr;
   for (auto in_buffer : in_buffers_) {
     delete in_buffer;
   }
@@ -49,7 +55,9 @@ void Node::reset() {
   if (credits_ != nullptr) {
     init_credits();
   }
-  vc_rr_counter_.store(0);
+  if (port_usage_ != nullptr) {
+    init_port_usage();
+  }
 }
 
 void Node::init_credits() {
@@ -101,4 +109,24 @@ int Node::get_port_to_buffer(Buffer* buf) const {
     if (link_buffers_[i] == buf) return i;
   }
   return -1;
+}
+
+void Node::init_port_usage() {
+  if (port_usage_ != nullptr) {
+    delete[] port_usage_;
+  }
+  port_usage_ = new std::atomic<uint64_t>[radix_];
+  for (int i = 0; i < radix_; ++i) {
+    port_usage_[i].store(0);
+  }
+}
+
+uint64_t Node::get_port_usage(int port) const {
+  if (port_usage_ == nullptr || port < 0 || port >= radix_) return UINT64_MAX;
+  return port_usage_[port].load();
+}
+
+void Node::increment_port_usage(int port) {
+  if (port_usage_ == nullptr || port < 0 || port >= radix_) return;
+  port_usage_[port].fetch_add(1, std::memory_order_relaxed);
 }

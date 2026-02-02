@@ -57,6 +57,15 @@ class System {
 
   friend TrafficManager;
 
+  // RTT 偏差诊断：仅当 enable_diagnostics(true) 时收集
+  void enable_diagnostics(bool on) { diagnostics_enabled_ = on; }
+  void reset_diagnostics();
+  void record_diag_no_credit_blocked() {
+    if (diagnostics_enabled_) diag_no_credit_blocked_++;
+  }
+  uint64_t get_diag_no_credit_blocked() const { return diag_no_credit_blocked_; }
+  uint64_t get_diag_credit_returns_last_cycle() const { return diag_credit_returns_last_cycle_; }
+
  protected:
   std::vector<Group*> groups_;
 
@@ -68,4 +77,9 @@ class System {
   };
   std::vector<PendingCreditReturn> pending_credit_returns_;
   std::mutex pending_credit_mutex_;
+
+  // RTT 偏差诊断计数（仅当 diagnostics_enabled_ 时更新）
+  bool diagnostics_enabled_ = false;
+  mutable uint64_t diag_no_credit_blocked_ = 0;      // VC 分配因无可用 credit 而失败次数
+  mutable uint64_t diag_credit_returns_last_cycle_ = 0;  // 上一周期 credit 回报的 flit 数
 };

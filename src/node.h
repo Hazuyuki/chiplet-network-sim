@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 
 #include "config.h"
 
@@ -82,6 +83,9 @@ class Node {
   // Credit-based flow control: credits_[port * vc_num_ + vcb] = 可向该 port/VC 发送的 flit 数
   std::atomic_int* credits_{nullptr};
 
-  // VC 轮询选择：多候选时按此计数器轮流选择，实现包泼洒负载均衡
-  std::atomic<int> vc_rr_counter_{0};
+  // 端口使用计数：用于优先级分配，选择使用次数最少的端口
+  std::atomic<uint64_t>* port_usage_{nullptr};
+  void init_port_usage();
+  uint64_t get_port_usage(int port) const;
+  void increment_port_usage(int port);
 };

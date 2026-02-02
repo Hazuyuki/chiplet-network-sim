@@ -1,5 +1,9 @@
 #include "system.h"
 
+#include <algorithm>
+#include <map>
+#include <vector>
+
 #include "config.h"
 #include "dragonfly_chiplet.h"
 #include "dragonfly_sw.h"
@@ -73,6 +77,11 @@ void System::push_pending_credit_return(uint64_t delivery_cycle, Node* node, int
   pending_credit_returns_.push_back({delivery_cycle, node, port, vcb, n});
 }
 
+void System::reset_diagnostics() {
+  diag_no_credit_blocked_ = 0;
+  diag_credit_returns_last_cycle_ = 0;
+}
+
 void System::process_pending_credits(uint64_t current_cycle) {
   std::vector<PendingCreditReturn> to_deliver;
   {
@@ -87,7 +96,9 @@ void System::process_pending_credits(uint64_t current_cycle) {
       }
     }
   }
+  diag_credit_returns_last_cycle_ = 0;
   for (auto& e : to_deliver) {
+    if (diagnostics_enabled_) diag_credit_returns_last_cycle_ += e.n;
     e.node->return_credit(e.port, e.vcb, e.n);
   }
 }
@@ -104,6 +115,8 @@ void System::init_flow_control() {
       if (param->flow_control == "credit") {
         node->init_credits();
       }
+      // 初始化端口使用计数（用于优先级分配）
+      node->init_port_usage();
     }
   }
 }
@@ -145,61 +158,118 @@ void System::routing(Packet& p) const {
   assert(!p.candidate_channels_.empty());
 }
 
-// 轮询辅助：从 start 开始遍历 [0, n)，返回 (start + i) % n 的索引序列
-static void vc_allocate_round_robin(Packet& p, Node* sender, bool credit_mode) {
+// 端口优先级分配：选择使用次数最少的端口
+// credit 模式下仅考虑当前 credit 足够的端口/VC，不分配给 credit 不足的端口或 VC
+static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, System* sys) {
   const int n = static_cast<int>(p.candidate_channels_.size());
   if (n <= 0) return;
-  int start = sender->vc_rr_counter_.load(std::memory_order_relaxed) % n;
 
-  auto try_assign = [&](int idx) -> bool {
-    VCInfo& vc = p.candidate_channels_[idx];
-    int port = sender->get_port_to_buffer(vc.buffer);
-    if (port < 0) return false;
-    if (credit_mode) {
-      if (vc.buffer->is_empty(vc.vcb) && sender->has_credit(port, vc.vcb, p.length_)) {
-        p.next_vc_ = vc;
-        sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
-        return true;
-      }
-      return false;
-    }
-    if (vc.buffer->is_empty(vc.vcb) && vc.buffer->allocate_buffer(vc.vcb, p.length_)) {
-      p.next_vc_ = vc;
-      sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
-      return true;
-    }
-    return false;
-  };
+  // 1. 按物理端口（Buffer 指针）分组候选通道，并记录端口号
+  std::vector<std::pair<Buffer*, int>> port_info;  // (Buffer*, port_idx)
+  std::map<Buffer*, std::vector<int>> port_to_indices;  // Buffer* -> 候选索引列表
 
-  auto try_assign_any = [&](int idx) -> bool {
-    VCInfo& vc = p.candidate_channels_[idx];
-    int port = sender->get_port_to_buffer(vc.buffer);
-    if (port < 0) return false;
-    if (credit_mode) {
-      if (sender->has_credit(port, vc.vcb, p.length_)) {
-        p.next_vc_ = vc;
-        sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
-        return true;
-      }
-      return false;
-    }
-    if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {
-      p.next_vc_ = vc;
-      sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
-      return true;
-    }
-    return false;
-  };
-
-  // 优先空 VC，从 start 轮询
   for (int i = 0; i < n; i++) {
-    int idx = (start + i) % n;
-    if (try_assign(idx)) return;
+    Buffer* buf = p.candidate_channels_[i].buffer;
+    if (port_to_indices.find(buf) == port_to_indices.end()) {
+      int port = sender->get_port_to_buffer(buf);
+      if (port >= 0) {
+        port_info.emplace_back(buf, port);
+      }
+    }
+    port_to_indices[buf].push_back(i);
   }
-  // 再试任意可用 VC，从 start 轮询
-  for (int i = 0; i < n; i++) {
-    int idx = (start + i) % n;
-    if (try_assign_any(idx)) return;
+
+  const int num_ports = static_cast<int>(port_info.size());
+  if (num_ports <= 0) return;
+
+  // 2. [credit 模式] 只保留当前至少有一个 VC credit 足够的端口，不分配给 credit 不足的端口
+  std::vector<std::pair<Buffer*, int>> candidates;
+  if (credit_mode) {
+    for (const auto& [buf, port] : port_info) {
+      const auto& indices = port_to_indices[buf];
+      bool port_has_credit = false;
+      for (int idx : indices) {
+        const VCInfo& vc = p.candidate_channels_[idx];
+        if (sender->has_credit(port, vc.vcb, p.length_)) {
+          port_has_credit = true;
+          break;
+        }
+      }
+      if (port_has_credit) {
+        candidates.emplace_back(buf, port);
+      }
+    }
+  } else {
+    candidates = port_info;
+  }
+
+  if (candidates.empty()) {
+    if (credit_mode && sys) sys->record_diag_no_credit_blocked();
+    return;
+  }
+
+  // 3. 在候选端口中找出负载最低的值
+  uint64_t min_usage = UINT64_MAX;
+  for (const auto& [buf, port] : candidates) {
+    uint64_t usage = sender->get_port_usage(port);
+    if (usage < min_usage) min_usage = usage;
+  }
+
+  // 4. 收集负载等于最低值的端口
+  std::vector<std::pair<Buffer*, int>> min_ports;
+  for (const auto& [buf, port] : candidates) {
+    if (sender->get_port_usage(port) == min_usage) {
+      min_ports.emplace_back(buf, port);
+    }
+  }
+
+  // 尝试在指定端口的 VC 列表中分配；credit 模式下只选 has_credit 的 VC，不分配给 credit 不足的 VC
+  auto try_port = [&](Buffer* buf, int port, bool empty_only) -> bool {
+    const auto& indices = port_to_indices[buf];
+    for (int idx : indices) {
+      VCInfo& vc = p.candidate_channels_[idx];
+      if (credit_mode) {
+        if (!sender->has_credit(port, vc.vcb, p.length_)) continue;  // 当前 credit 不足则不分配该 VC
+        bool ok = empty_only ? vc.buffer->is_empty(vc.vcb) : true;
+        if (ok) {
+          p.next_vc_ = vc;
+          sender->increment_port_usage(port);
+          return true;
+        }
+      } else {
+        bool ok = empty_only
+                      ? (vc.buffer->is_empty(vc.vcb) && vc.buffer->allocate_buffer(vc.vcb, p.length_))
+                      : vc.buffer->allocate_buffer(vc.vcb, p.length_);
+        if (ok) {
+          p.next_vc_ = vc;
+          sender->increment_port_usage(port);
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // 5. 从负载最低的端口中尝试（优先空 VC）
+  for (const auto& [buf, port] : min_ports) {
+    if (try_port(buf, port, true)) return;
+  }
+
+  // 6. 再试任意可用 VC（仍只选 credit 足够的）
+  for (const auto& [buf, port] : min_ports) {
+    if (try_port(buf, port, false)) return;
+  }
+
+  // 7. 其他候选端口
+  for (const auto& [buf, port] : candidates) {
+    if (sender->get_port_usage(port) > min_usage) {
+      if (try_port(buf, port, true)) return;
+    }
+  }
+  for (const auto& [buf, port] : candidates) {
+    if (sender->get_port_usage(port) > min_usage) {
+      if (try_port(buf, port, false)) return;
+    }
   }
 }
 
@@ -210,12 +280,12 @@ void System::vc_allocate(Packet& p) {
     Node* sender = get_node(current_vc.buffer == nullptr ? p.source_ : current_vc.id);
 
     if (param->flow_control == "credit") {
-      vc_allocate_round_robin(p, sender, true);
+      vc_allocate_priority(p, sender, true, this);
       return;
     }
 
-    // Buffer-based: 轮询
-    vc_allocate_round_robin(p, sender, false);
+    // Buffer-based: 优先级分配
+    vc_allocate_priority(p, sender, false, this);
   }
 }
 

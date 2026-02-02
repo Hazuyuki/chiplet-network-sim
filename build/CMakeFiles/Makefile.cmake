@@ -54,4 +54,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_nvswitch_topology.dir/DependInfo.cmake"
   "CMakeFiles/test_credit_flow_control.dir/DependInfo.cmake"
   "CMakeFiles/test_packet_spraying.dir/DependInfo.cmake"
+  "CMakeFiles/test_throughput_bottleneck.dir/DependInfo.cmake"
+  "CMakeFiles/test_rtt_deviation_diagnosis.dir/DependInfo.cmake"
   )

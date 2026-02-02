@@ -31,6 +31,7 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_simple.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_topology.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_credit_flow_control.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_throughput_bottleneck.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -82,6 +83,36 @@ add_executable(test_packet_spraying
 target_include_directories(test_packet_spraying PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
   target_link_libraries(test_packet_spraying ${Boost_LIBRARIES})
+endif()
+
+# 吞吐瓶颈诊断测试
+set(SRC_FILES_BOTTLENECK_TEST ${SRC_FILES})
+list(REMOVE_ITEM SRC_FILES_BOTTLENECK_TEST "src/main.cpp")
+add_executable(test_throughput_bottleneck
+  src/topologies/test_throughput_bottleneck.cpp
+  ${SRC_FILES_BOTTLENECK_TEST}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_throughput_bottleneck PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_throughput_bottleneck ${Boost_LIBRARIES})
+endif()
+
+# RTT 偏差诊断测试
+set(SRC_FILES_RTT_DIAG ${SRC_FILES})
+list(REMOVE_ITEM SRC_FILES_RTT_DIAG "src/main.cpp")
+add_executable(test_rtt_deviation_diagnosis
+  src/topologies/test_rtt_deviation_diagnosis.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_rtt_deviation_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_rtt_deviation_diagnosis ${Boost_LIBRARIES})
 endif()
 
 # Add test executable for NVSwitch topology (full test suite, optional)

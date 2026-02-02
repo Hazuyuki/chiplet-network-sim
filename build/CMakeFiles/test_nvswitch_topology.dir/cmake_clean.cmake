@@ -41,6 +41,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/test_nvswitch_topology.dir/src/topologies/single_chip_mesh.cpp.o.d"
   "CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_nvswitch_topology.cpp.o"
   "CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_nvswitch_topology.cpp.o.d"
+  "CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o"
+  "CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o.d"
   "CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_railx.cpp.o"
   "CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_railx.cpp.o.d"
   "CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_ring.cpp.o"

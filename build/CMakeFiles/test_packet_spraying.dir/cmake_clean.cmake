@@ -41,6 +41,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/test_packet_spraying.dir/src/topologies/single_chip_mesh.cpp.o.d"
   "CMakeFiles/test_packet_spraying.dir/src/topologies/test_packet_spraying.cpp.o"
   "CMakeFiles/test_packet_spraying.dir/src/topologies/test_packet_spraying.cpp.o.d"
+  "CMakeFiles/test_packet_spraying.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o"
+  "CMakeFiles/test_packet_spraying.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o.d"
   "CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_railx.cpp.o"
   "CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_railx.cpp.o.d"
   "CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_ring.cpp.o"
