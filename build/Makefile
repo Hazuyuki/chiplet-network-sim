@@ -155,6 +155,19 @@ test_credit_flow_control/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/build
 .PHONY : test_credit_flow_control/fast
 
+#=============================================================================
+# Target rules for targets named test_packet_spraying
+
+# Build rule for target.
+test_packet_spraying: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_packet_spraying
+.PHONY : test_packet_spraying
+
+# fast build rule for target.
+test_packet_spraying/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/build
+.PHONY : test_packet_spraying/fast
+
 src/buffer.o: src/buffer.cpp.o
 .PHONY : src/buffer.o
 
@@ -163,6 +176,7 @@ src/buffer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/buffer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/buffer.cpp.o
 .PHONY : src/buffer.cpp.o
 
 src/buffer.i: src/buffer.cpp.i
@@ -173,6 +187,7 @@ src/buffer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/buffer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/buffer.cpp.i
 .PHONY : src/buffer.cpp.i
 
 src/buffer.s: src/buffer.cpp.s
@@ -183,6 +198,7 @@ src/buffer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/buffer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/buffer.cpp.s
 .PHONY : src/buffer.cpp.s
 
 src/config.o: src/config.cpp.o
@@ -193,6 +209,7 @@ src/config.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/config.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/config.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/config.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/config.cpp.o
 .PHONY : src/config.cpp.o
 
 src/config.i: src/config.cpp.i
@@ -203,6 +220,7 @@ src/config.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/config.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/config.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/config.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/config.cpp.i
 .PHONY : src/config.cpp.i
 
 src/config.s: src/config.cpp.s
@@ -213,6 +231,7 @@ src/config.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/config.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/config.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/config.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/config.cpp.s
 .PHONY : src/config.cpp.s
 
 src/group.o: src/group.cpp.o
@@ -223,6 +242,7 @@ src/group.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/group.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/group.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/group.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/group.cpp.o
 .PHONY : src/group.cpp.o
 
 src/group.i: src/group.cpp.i
@@ -233,6 +253,7 @@ src/group.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/group.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/group.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/group.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/group.cpp.i
 .PHONY : src/group.cpp.i
 
 src/group.s: src/group.cpp.s
@@ -243,6 +264,7 @@ src/group.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/group.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/group.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/group.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/group.cpp.s
 .PHONY : src/group.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -277,6 +299,7 @@ src/netrace/netrace.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/netrace/netrace.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/netrace/netrace.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/netrace/netrace.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/netrace/netrace.c.o
 .PHONY : src/netrace/netrace.c.o
 
 src/netrace/netrace.i: src/netrace/netrace.c.i
@@ -287,6 +310,7 @@ src/netrace/netrace.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/netrace/netrace.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/netrace/netrace.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/netrace/netrace.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/netrace/netrace.c.i
 .PHONY : src/netrace/netrace.c.i
 
 src/netrace/netrace.s: src/netrace/netrace.c.s
@@ -297,6 +321,7 @@ src/netrace/netrace.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/netrace/netrace.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/netrace/netrace.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/netrace/netrace.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/netrace/netrace.c.s
 .PHONY : src/netrace/netrace.c.s
 
 src/node.o: src/node.cpp.o
@@ -307,6 +332,7 @@ src/node.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/node.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/node.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/node.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/node.cpp.o
 .PHONY : src/node.cpp.o
 
 src/node.i: src/node.cpp.i
@@ -317,6 +343,7 @@ src/node.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/node.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/node.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/node.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/node.cpp.i
 .PHONY : src/node.cpp.i
 
 src/node.s: src/node.cpp.s
@@ -327,6 +354,7 @@ src/node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/node.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/node.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/node.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/node.cpp.s
 .PHONY : src/node.cpp.s
 
 src/packet.o: src/packet.cpp.o
@@ -337,6 +365,7 @@ src/packet.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/packet.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/packet.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/packet.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/packet.cpp.o
 .PHONY : src/packet.cpp.o
 
 src/packet.i: src/packet.cpp.i
@@ -347,6 +376,7 @@ src/packet.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/packet.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/packet.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/packet.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/packet.cpp.i
 .PHONY : src/packet.cpp.i
 
 src/packet.s: src/packet.cpp.s
@@ -357,6 +387,7 @@ src/packet.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/packet.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/packet.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/packet.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/packet.cpp.s
 .PHONY : src/packet.cpp.s
 
 src/system.o: src/system.cpp.o
@@ -367,6 +398,7 @@ src/system.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/system.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/system.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/system.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/system.cpp.o
 .PHONY : src/system.cpp.o
 
 src/system.i: src/system.cpp.i
@@ -377,6 +409,7 @@ src/system.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/system.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/system.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/system.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/system.cpp.i
 .PHONY : src/system.cpp.i
 
 src/system.s: src/system.cpp.s
@@ -387,6 +420,7 @@ src/system.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/system.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/system.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/system.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/system.cpp.s
 .PHONY : src/system.cpp.s
 
 src/topologies/dragonfly_chiplet.o: src/topologies/dragonfly_chiplet.cpp.o
@@ -397,6 +431,7 @@ src/topologies/dragonfly_chiplet.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_chiplet.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_chiplet.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_chiplet.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_chiplet.cpp.o
 .PHONY : src/topologies/dragonfly_chiplet.cpp.o
 
 src/topologies/dragonfly_chiplet.i: src/topologies/dragonfly_chiplet.cpp.i
@@ -407,6 +442,7 @@ src/topologies/dragonfly_chiplet.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_chiplet.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_chiplet.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_chiplet.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_chiplet.cpp.i
 .PHONY : src/topologies/dragonfly_chiplet.cpp.i
 
 src/topologies/dragonfly_chiplet.s: src/topologies/dragonfly_chiplet.cpp.s
@@ -417,6 +453,7 @@ src/topologies/dragonfly_chiplet.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_chiplet.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_chiplet.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_chiplet.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_chiplet.cpp.s
 .PHONY : src/topologies/dragonfly_chiplet.cpp.s
 
 src/topologies/dragonfly_sw.o: src/topologies/dragonfly_sw.cpp.o
@@ -427,6 +464,7 @@ src/topologies/dragonfly_sw.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_sw.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_sw.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_sw.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_sw.cpp.o
 .PHONY : src/topologies/dragonfly_sw.cpp.o
 
 src/topologies/dragonfly_sw.i: src/topologies/dragonfly_sw.cpp.i
@@ -437,6 +475,7 @@ src/topologies/dragonfly_sw.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_sw.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_sw.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_sw.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_sw.cpp.i
 .PHONY : src/topologies/dragonfly_sw.cpp.i
 
 src/topologies/dragonfly_sw.s: src/topologies/dragonfly_sw.cpp.s
@@ -447,6 +486,7 @@ src/topologies/dragonfly_sw.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/dragonfly_sw.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/dragonfly_sw.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/dragonfly_sw.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/dragonfly_sw.cpp.s
 .PHONY : src/topologies/dragonfly_sw.cpp.s
 
 src/topologies/fat_tree.o: src/topologies/fat_tree.cpp.o
@@ -457,6 +497,7 @@ src/topologies/fat_tree.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/fat_tree.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/fat_tree.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/fat_tree.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/fat_tree.cpp.o
 .PHONY : src/topologies/fat_tree.cpp.o
 
 src/topologies/fat_tree.i: src/topologies/fat_tree.cpp.i
@@ -467,6 +508,7 @@ src/topologies/fat_tree.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/fat_tree.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/fat_tree.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/fat_tree.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/fat_tree.cpp.i
 .PHONY : src/topologies/fat_tree.cpp.i
 
 src/topologies/fat_tree.s: src/topologies/fat_tree.cpp.s
@@ -477,6 +519,7 @@ src/topologies/fat_tree.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/fat_tree.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/fat_tree.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/fat_tree.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/fat_tree.cpp.s
 .PHONY : src/topologies/fat_tree.cpp.s
 
 src/topologies/hamilton_decomp.o: src/topologies/hamilton_decomp.cpp.o
@@ -487,6 +530,7 @@ src/topologies/hamilton_decomp.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hamilton_decomp.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hamilton_decomp.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hamilton_decomp.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hamilton_decomp.cpp.o
 .PHONY : src/topologies/hamilton_decomp.cpp.o
 
 src/topologies/hamilton_decomp.i: src/topologies/hamilton_decomp.cpp.i
@@ -497,6 +541,7 @@ src/topologies/hamilton_decomp.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hamilton_decomp.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hamilton_decomp.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hamilton_decomp.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hamilton_decomp.cpp.i
 .PHONY : src/topologies/hamilton_decomp.cpp.i
 
 src/topologies/hamilton_decomp.s: src/topologies/hamilton_decomp.cpp.s
@@ -507,6 +552,7 @@ src/topologies/hamilton_decomp.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hamilton_decomp.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hamilton_decomp.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hamilton_decomp.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hamilton_decomp.cpp.s
 .PHONY : src/topologies/hamilton_decomp.cpp.s
 
 src/topologies/hammingmesh.o: src/topologies/hammingmesh.cpp.o
@@ -517,6 +563,7 @@ src/topologies/hammingmesh.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hammingmesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hammingmesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hammingmesh.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hammingmesh.cpp.o
 .PHONY : src/topologies/hammingmesh.cpp.o
 
 src/topologies/hammingmesh.i: src/topologies/hammingmesh.cpp.i
@@ -527,6 +574,7 @@ src/topologies/hammingmesh.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hammingmesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hammingmesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hammingmesh.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hammingmesh.cpp.i
 .PHONY : src/topologies/hammingmesh.cpp.i
 
 src/topologies/hammingmesh.s: src/topologies/hammingmesh.cpp.s
@@ -537,6 +585,7 @@ src/topologies/hammingmesh.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/hammingmesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/hammingmesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/hammingmesh.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/hammingmesh.cpp.s
 .PHONY : src/topologies/hammingmesh.cpp.s
 
 src/topologies/multiple_chip_mesh.o: src/topologies/multiple_chip_mesh.cpp.o
@@ -547,6 +596,7 @@ src/topologies/multiple_chip_mesh.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_mesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_mesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_mesh.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_mesh.cpp.o
 .PHONY : src/topologies/multiple_chip_mesh.cpp.o
 
 src/topologies/multiple_chip_mesh.i: src/topologies/multiple_chip_mesh.cpp.i
@@ -557,6 +607,7 @@ src/topologies/multiple_chip_mesh.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_mesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_mesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_mesh.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_mesh.cpp.i
 .PHONY : src/topologies/multiple_chip_mesh.cpp.i
 
 src/topologies/multiple_chip_mesh.s: src/topologies/multiple_chip_mesh.cpp.s
@@ -567,6 +618,7 @@ src/topologies/multiple_chip_mesh.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_mesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_mesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_mesh.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_mesh.cpp.s
 .PHONY : src/topologies/multiple_chip_mesh.cpp.s
 
 src/topologies/multiple_chip_torus.o: src/topologies/multiple_chip_torus.cpp.o
@@ -577,6 +629,7 @@ src/topologies/multiple_chip_torus.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_torus.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_torus.cpp.o
 .PHONY : src/topologies/multiple_chip_torus.cpp.o
 
 src/topologies/multiple_chip_torus.i: src/topologies/multiple_chip_torus.cpp.i
@@ -587,6 +640,7 @@ src/topologies/multiple_chip_torus.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_torus.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_torus.cpp.i
 .PHONY : src/topologies/multiple_chip_torus.cpp.i
 
 src/topologies/multiple_chip_torus.s: src/topologies/multiple_chip_torus.cpp.s
@@ -597,6 +651,7 @@ src/topologies/multiple_chip_torus.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/multiple_chip_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/multiple_chip_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/multiple_chip_torus.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/multiple_chip_torus.cpp.s
 .PHONY : src/topologies/multiple_chip_torus.cpp.s
 
 src/topologies/nvswitch.o: src/topologies/nvswitch.cpp.o
@@ -607,6 +662,7 @@ src/topologies/nvswitch.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/nvswitch.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/nvswitch.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/nvswitch.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/nvswitch.cpp.o
 .PHONY : src/topologies/nvswitch.cpp.o
 
 src/topologies/nvswitch.i: src/topologies/nvswitch.cpp.i
@@ -617,6 +673,7 @@ src/topologies/nvswitch.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/nvswitch.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/nvswitch.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/nvswitch.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/nvswitch.cpp.i
 .PHONY : src/topologies/nvswitch.cpp.i
 
 src/topologies/nvswitch.s: src/topologies/nvswitch.cpp.s
@@ -627,6 +684,7 @@ src/topologies/nvswitch.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/nvswitch.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/nvswitch.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/nvswitch.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/nvswitch.cpp.s
 .PHONY : src/topologies/nvswitch.cpp.s
 
 src/topologies/railx.o: src/topologies/railx.cpp.o
@@ -637,6 +695,7 @@ src/topologies/railx.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx.cpp.o
 .PHONY : src/topologies/railx.cpp.o
 
 src/topologies/railx.i: src/topologies/railx.cpp.i
@@ -647,6 +706,7 @@ src/topologies/railx.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx.cpp.i
 .PHONY : src/topologies/railx.cpp.i
 
 src/topologies/railx.s: src/topologies/railx.cpp.s
@@ -657,6 +717,7 @@ src/topologies/railx.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx.cpp.s
 .PHONY : src/topologies/railx.cpp.s
 
 src/topologies/railx_2d_hyperx.o: src/topologies/railx_2d_hyperx.cpp.o
@@ -667,6 +728,7 @@ src/topologies/railx_2d_hyperx.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_hyperx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_hyperx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_hyperx.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_hyperx.cpp.o
 .PHONY : src/topologies/railx_2d_hyperx.cpp.o
 
 src/topologies/railx_2d_hyperx.i: src/topologies/railx_2d_hyperx.cpp.i
@@ -677,6 +739,7 @@ src/topologies/railx_2d_hyperx.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_hyperx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_hyperx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_hyperx.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_hyperx.cpp.i
 .PHONY : src/topologies/railx_2d_hyperx.cpp.i
 
 src/topologies/railx_2d_hyperx.s: src/topologies/railx_2d_hyperx.cpp.s
@@ -687,6 +750,7 @@ src/topologies/railx_2d_hyperx.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_hyperx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_hyperx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_hyperx.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_hyperx.cpp.s
 .PHONY : src/topologies/railx_2d_hyperx.cpp.s
 
 src/topologies/railx_2d_torus.o: src/topologies/railx_2d_torus.cpp.o
@@ -697,6 +761,7 @@ src/topologies/railx_2d_torus.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_torus.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_torus.cpp.o
 .PHONY : src/topologies/railx_2d_torus.cpp.o
 
 src/topologies/railx_2d_torus.i: src/topologies/railx_2d_torus.cpp.i
@@ -707,6 +772,7 @@ src/topologies/railx_2d_torus.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_torus.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_torus.cpp.i
 .PHONY : src/topologies/railx_2d_torus.cpp.i
 
 src/topologies/railx_2d_torus.s: src/topologies/railx_2d_torus.cpp.s
@@ -717,6 +783,7 @@ src/topologies/railx_2d_torus.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_torus.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_torus.cpp.s
 .PHONY : src/topologies/railx_2d_torus.cpp.s
 
 src/topologies/railx_2d_twisted_torus.o: src/topologies/railx_2d_twisted_torus.cpp.o
@@ -727,6 +794,7 @@ src/topologies/railx_2d_twisted_torus.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_twisted_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_twisted_torus.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_twisted_torus.cpp.o
 .PHONY : src/topologies/railx_2d_twisted_torus.cpp.o
 
 src/topologies/railx_2d_twisted_torus.i: src/topologies/railx_2d_twisted_torus.cpp.i
@@ -737,6 +805,7 @@ src/topologies/railx_2d_twisted_torus.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_twisted_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_twisted_torus.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_twisted_torus.cpp.i
 .PHONY : src/topologies/railx_2d_twisted_torus.cpp.i
 
 src/topologies/railx_2d_twisted_torus.s: src/topologies/railx_2d_twisted_torus.cpp.s
@@ -747,6 +816,7 @@ src/topologies/railx_2d_twisted_torus.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/railx_2d_twisted_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/railx_2d_twisted_torus.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/railx_2d_twisted_torus.cpp.s
 .PHONY : src/topologies/railx_2d_twisted_torus.cpp.s
 
 src/topologies/single_chip_mesh.o: src/topologies/single_chip_mesh.cpp.o
@@ -757,6 +827,7 @@ src/topologies/single_chip_mesh.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/single_chip_mesh.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/single_chip_mesh.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/single_chip_mesh.cpp.o
 .PHONY : src/topologies/single_chip_mesh.cpp.o
 
 src/topologies/single_chip_mesh.i: src/topologies/single_chip_mesh.cpp.i
@@ -767,6 +838,7 @@ src/topologies/single_chip_mesh.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/single_chip_mesh.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/single_chip_mesh.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/single_chip_mesh.cpp.i
 .PHONY : src/topologies/single_chip_mesh.cpp.i
 
 src/topologies/single_chip_mesh.s: src/topologies/single_chip_mesh.cpp.s
@@ -777,6 +849,7 @@ src/topologies/single_chip_mesh.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/single_chip_mesh.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/single_chip_mesh.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/single_chip_mesh.cpp.s
 .PHONY : src/topologies/single_chip_mesh.cpp.s
 
 src/topologies/test_credit_flow_control.o: src/topologies/test_credit_flow_control.cpp.o
@@ -827,6 +900,30 @@ src/topologies/test_nvswitch_topology.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_nvswitch_topology.cpp.s
 .PHONY : src/topologies/test_nvswitch_topology.cpp.s
 
+src/topologies/test_packet_spraying.o: src/topologies/test_packet_spraying.cpp.o
+.PHONY : src/topologies/test_packet_spraying.o
+
+# target to build an object file
+src/topologies/test_packet_spraying.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_packet_spraying.cpp.o
+.PHONY : src/topologies/test_packet_spraying.cpp.o
+
+src/topologies/test_packet_spraying.i: src/topologies/test_packet_spraying.cpp.i
+.PHONY : src/topologies/test_packet_spraying.i
+
+# target to preprocess a source file
+src/topologies/test_packet_spraying.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_packet_spraying.cpp.i
+.PHONY : src/topologies/test_packet_spraying.cpp.i
+
+src/topologies/test_packet_spraying.s: src/topologies/test_packet_spraying.cpp.s
+.PHONY : src/topologies/test_packet_spraying.s
+
+# target to generate assembly for a file
+src/topologies/test_packet_spraying.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_packet_spraying.cpp.s
+.PHONY : src/topologies/test_packet_spraying.cpp.s
+
 src/traffic/allreduce_railx.o: src/traffic/allreduce_railx.cpp.o
 .PHONY : src/traffic/allreduce_railx.o
 
@@ -835,6 +932,7 @@ src/traffic/allreduce_railx.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_railx.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_railx.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_railx.cpp.o
 .PHONY : src/traffic/allreduce_railx.cpp.o
 
 src/traffic/allreduce_railx.i: src/traffic/allreduce_railx.cpp.i
@@ -845,6 +943,7 @@ src/traffic/allreduce_railx.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_railx.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_railx.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_railx.cpp.i
 .PHONY : src/traffic/allreduce_railx.cpp.i
 
 src/traffic/allreduce_railx.s: src/traffic/allreduce_railx.cpp.s
@@ -855,6 +954,7 @@ src/traffic/allreduce_railx.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_railx.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_railx.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_railx.cpp.s
 .PHONY : src/traffic/allreduce_railx.cpp.s
 
 src/traffic/allreduce_ring.o: src/traffic/allreduce_ring.cpp.o
@@ -865,6 +965,7 @@ src/traffic/allreduce_ring.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_ring.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_ring.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_ring.cpp.o
 .PHONY : src/traffic/allreduce_ring.cpp.o
 
 src/traffic/allreduce_ring.i: src/traffic/allreduce_ring.cpp.i
@@ -875,6 +976,7 @@ src/traffic/allreduce_ring.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_ring.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_ring.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_ring.cpp.i
 .PHONY : src/traffic/allreduce_ring.cpp.i
 
 src/traffic/allreduce_ring.s: src/traffic/allreduce_ring.cpp.s
@@ -885,6 +987,7 @@ src/traffic/allreduce_ring.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_ring.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_ring.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_ring.cpp.s
 .PHONY : src/traffic/allreduce_ring.cpp.s
 
 src/traffic/allreduce_torus.o: src/traffic/allreduce_torus.cpp.o
@@ -895,6 +998,7 @@ src/traffic/allreduce_torus.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_torus.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_torus.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_torus.cpp.o
 .PHONY : src/traffic/allreduce_torus.cpp.o
 
 src/traffic/allreduce_torus.i: src/traffic/allreduce_torus.cpp.i
@@ -905,6 +1009,7 @@ src/traffic/allreduce_torus.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_torus.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_torus.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_torus.cpp.i
 .PHONY : src/traffic/allreduce_torus.cpp.i
 
 src/traffic/allreduce_torus.s: src/traffic/allreduce_torus.cpp.s
@@ -915,6 +1020,7 @@ src/traffic/allreduce_torus.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic/allreduce_torus.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic/allreduce_torus.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic/allreduce_torus.cpp.s
 .PHONY : src/traffic/allreduce_torus.cpp.s
 
 src/traffic_manager.o: src/traffic_manager.cpp.o
@@ -925,6 +1031,7 @@ src/traffic_manager.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic_manager.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic_manager.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic_manager.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic_manager.cpp.o
 .PHONY : src/traffic_manager.cpp.o
 
 src/traffic_manager.i: src/traffic_manager.cpp.i
@@ -935,6 +1042,7 @@ src/traffic_manager.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic_manager.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic_manager.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic_manager.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic_manager.cpp.i
 .PHONY : src/traffic_manager.cpp.i
 
 src/traffic_manager.s: src/traffic_manager.cpp.s
@@ -945,6 +1053,7 @@ src/traffic_manager.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/traffic_manager.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/traffic_manager.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/traffic_manager.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/traffic_manager.cpp.s
 .PHONY : src/traffic_manager.cpp.s
 
 # Help Target
@@ -958,6 +1067,7 @@ help:
 	@echo "... ChipletNetworkSim"
 	@echo "... test_credit_flow_control"
 	@echo "... test_nvswitch_topology"
+	@echo "... test_packet_spraying"
 	@echo "... src/buffer.o"
 	@echo "... src/buffer.i"
 	@echo "... src/buffer.s"
@@ -1027,6 +1137,9 @@ help:
 	@echo "... src/topologies/test_nvswitch_topology.o"
 	@echo "... src/topologies/test_nvswitch_topology.i"
 	@echo "... src/topologies/test_nvswitch_topology.s"
+	@echo "... src/topologies/test_packet_spraying.o"
+	@echo "... src/topologies/test_packet_spraying.i"
+	@echo "... src/topologies/test_packet_spraying.s"
 	@echo "... src/traffic/allreduce_railx.o"
 	@echo "... src/traffic/allreduce_railx.i"
 	@echo "... src/traffic/allreduce_railx.s"

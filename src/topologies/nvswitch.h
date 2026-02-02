@@ -1,12 +1,14 @@
 #pragma once
 #include "system.h"
 
-// NVSwitchGroup represents a group containing GPUs and NVSwitches
-// In a typical NVSwitch topology, GPUs are endpoints and NVSwitches are switches
+// NVSwitchGroup represents a group (node) containing GPUs and Leaf NVSwitches
+// Each GPU has gpu_nvlink_ports links distributed across switches for packet spraying
 class NVSwitchGroup : public Group {
  public:
-  NVSwitchGroup(int num_gpus, int num_switches, int switch_radix, int vc_num, 
-                int buffer_size, Channel gpu_switch_channel, Channel switch_switch_channel);
+  NVSwitchGroup(int num_gpus, int num_switches, int gpu_nvlink_ports, int leaf_switch_radix,
+                int vc_num, int buffer_size,
+                Channel gpu_switch_channel, Channel switch_switch_channel,
+                const std::vector<int>& links_per_switch);
   ~NVSwitchGroup();
 
   void set_group(System* system, int group_id) override;
@@ -20,7 +22,9 @@ class NVSwitchGroup : public Group {
 
   int num_gpus_;
   int num_switches_;
-  int switch_radix_;
+  int gpu_nvlink_ports_;
+  int leaf_switch_radix_;
+  std::vector<int> links_per_switch_;  // links_per_switch[sw] = GPU ports to this switch
   Channel gpu_switch_channel_;
   Channel switch_switch_channel_;
 };
@@ -52,9 +56,12 @@ class NVSwitchSystem : public System {
   int num_gpus_per_group_;      // Number of GPUs per group
   int num_switches_per_group_;   // Number of NVSwitches per group
   int num_groups_;               // Number of groups (e.g., baseboards)
-  int switch_radix_;             // Radix of each NVSwitch
+  int gpu_nvlink_ports_;         // NVLink ports per GPU
+  int leaf_switch_radix_;        // Radix of each Leaf NVSwitch
+  int num_spine_switches_;       // 0 = no spine; >0 = Leaf-Spine inter-node
   bool switches_fully_connected_; // Whether switches are fully connected
   bool inter_group_sw_connect_;   // Whether switches connect between groups
+  std::vector<int> links_per_switch_;  // links_per_switch[sw] = GPU ports to this switch
 
   Channel gpu_switch_channel_;   // Channel between GPU and NVSwitch
   Channel switch_switch_channel_; // Channel between NVSwitches

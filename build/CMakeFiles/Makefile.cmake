@@ -53,4 +53,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ChipletNetworkSim.dir/DependInfo.cmake"
   "CMakeFiles/test_nvswitch_topology.dir/DependInfo.cmake"
   "CMakeFiles/test_credit_flow_control.dir/DependInfo.cmake"
+  "CMakeFiles/test_packet_spraying.dir/DependInfo.cmake"
   )

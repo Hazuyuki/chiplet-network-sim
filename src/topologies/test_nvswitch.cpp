@@ -24,7 +24,7 @@ topology = NVSwitch
 num_gpus_per_group = 4
 num_switches_per_group = 3
 num_groups = 1
-switch_radix = 10
+gpu_nvlink_ports = 18
 switches_fully_connected = true
 inter_group_sw_connect = false
 routing_algorithm = direct
@@ -75,7 +75,7 @@ void test_topology_construction() {
   assert(system->num_gpus_per_group_ == 4);
   assert(system->num_switches_per_group_ == 3);
   assert(system->num_groups_ == 1);
-  assert(system->switch_radix_ == 10);
+  assert(system->gpu_nvlink_ports_ == 18);
   assert(system->num_cores_ == 4);  // 只有GPU是cores
   assert(system->num_nodes_ == 7);   // 4 GPUs + 3 Switches
   
@@ -93,7 +93,7 @@ void test_topology_construction() {
   for (int i = 0; i < 4; i++) {
     Node* gpu = group->get_gpu(i);
     assert(gpu != nullptr);
-    assert(gpu->radix_ == 3);  // 每个GPU连接到3个Switch
+    assert(gpu->radix_ == 18);  // 每个GPU有18个NVLink端口
     assert(gpu->id_.node_id == i);
     assert(gpu->id_.group_id == 0);
   }
@@ -103,7 +103,7 @@ void test_topology_construction() {
   for (int i = 0; i < 3; i++) {
     Node* sw = group->get_nvswitch(i);
     assert(sw != nullptr);
-    assert(sw->radix_ == 10);  // Switch radix
+    assert(sw->radix_ >= 26);  // Leaf switch radix (4*6+2 for 4 GPUs, 3 switches)
     assert(sw->id_.node_id == 4 + i);  // GPU节点之后
     assert(sw->id_.group_id == 0);
   }
@@ -124,24 +124,24 @@ void test_gpu_switch_connections() {
   NVSwitchSystem* system = new NVSwitchSystem();
   NVSwitchGroup* group = system->get_group(0);
   
-  // 验证每个GPU连接到所有Switch
+  // GPU port layout: gpu_port_base[sw] + k connects to switch sw
+  std::vector<int> gpu_port_base(3);
+  for (int sw = 1; sw < 3; sw++) {
+    gpu_port_base[sw] = gpu_port_base[sw - 1] + system->links_per_switch_[sw - 1];
+  }
   for (int gpu_id = 0; gpu_id < 4; gpu_id++) {
     Node* gpu = group->get_gpu(gpu_id);
-    
     for (int sw_id = 0; sw_id < 3; sw_id++) {
-      // GPU的端口sw_id应该连接到Switch sw_id
-      NodeID linked_node = gpu->link_nodes_[sw_id];
-      assert(linked_node.node_id == 4 + sw_id);  // Switch节点ID
+      int gpu_port = gpu_port_base[sw_id];
+      NodeID linked_node = gpu->link_nodes_[gpu_port];
+      assert(linked_node.node_id == 4 + sw_id);
       assert(linked_node.group_id == 0);
-      
-      // 验证连接的Buffer
-      Buffer* linked_buffer = gpu->link_buffers_[sw_id];
+      Buffer* linked_buffer = gpu->link_buffers_[gpu_port];
       assert(linked_buffer != nullptr);
-      
-      // 验证Switch端口的连接
       Node* sw = group->get_nvswitch(sw_id);
-      assert(sw->link_nodes_[gpu_id].node_id == gpu_id);
-      assert(sw->link_buffers_[gpu_id] == gpu->in_buffers_[sw_id]);
+      int sw_port = gpu_id * system->links_per_switch_[sw_id];
+      assert(sw->link_nodes_[sw_port].node_id == gpu_id);
+      assert(sw->link_buffers_[sw_port] == gpu->in_buffers_[gpu_port]);
     }
   }
   
@@ -163,19 +163,18 @@ void test_switch_switch_connections() {
   NVSwitchGroup* group = system->get_group(0);
   
   // 验证Switch之间的全连接
-  int port_offset = 4;  // 前4个端口用于GPU
-  
   for (int sw1_id = 0; sw1_id < 3; sw1_id++) {
     Node* sw1 = group->get_nvswitch(sw1_id);
     
     for (int sw2_id = sw1_id + 1; sw2_id < 3; sw2_id++) {
       Node* sw2 = group->get_nvswitch(sw2_id);
       
-      // 计算端口号
-      int sw1_port = port_offset + sw2_id - 1;
-      int sw2_port = port_offset + sw1_id;
-      
-      if (sw1_port < 10 && sw2_port < 10) {
+      int port_offset1 = 4 * system->links_per_switch_[sw1_id];
+      int port_offset2 = 4 * system->links_per_switch_[sw2_id];
+      int sw1_port = port_offset1 + sw2_id - 1;
+      int sw2_port = port_offset2 + sw1_id;
+
+      if (sw1_port < sw1->radix_ && sw2_port < sw2->radix_) {
         // 验证连接
         NodeID sw1_linked = sw1->link_nodes_[sw1_port];
         assert(sw1_linked.node_id == 4 + sw2_id);
@@ -387,7 +386,7 @@ void test_edge_cases() {
   Parameters* test_param = create_test_params();
   test_param->params_ptree.put("Network.num_gpus_per_group", 2);
   test_param->params_ptree.put("Network.num_switches_per_group", 1);
-  test_param->params_ptree.put("Network.switch_radix", 5);
+  test_param->params_ptree.put("Network.gpu_nvlink_ports", 18);
   param = test_param;
   
   NVSwitchSystem* system = new NVSwitchSystem();

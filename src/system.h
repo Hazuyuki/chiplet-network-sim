@@ -29,7 +29,7 @@ class System {
   void Threestage(Packet& s);
   // Three stages of the router
   void routing(Packet& s) const;
-  void vc_allocate(Packet& s) const;
+  void vc_allocate(Packet& s);
   void switch_allocate(Packet& s);
   virtual void routing_algorithm(Packet& s) const = 0;
   // Used in Traffic Generator, convert core_id (int) to NodeID

@@ -25,7 +25,7 @@ topology = NVSwitch
 num_gpus_per_group = 4
 num_switches_per_group = 3
 num_groups = 1
-switch_radix = 10
+gpu_nvlink_ports = 18
 switches_fully_connected = true
 inter_group_sw_connect = false
 routing_algorithm = direct
@@ -78,27 +78,32 @@ output_file = test_output.csv
   // 验证连接
   NVSwitchGroup* group = system->get_group(0);
   
+  std::vector<int> gpu_port_base(3);
+  for (int sw = 1; sw < 3; sw++) {
+    gpu_port_base[sw] = gpu_port_base[sw - 1] + system->links_per_switch_[sw - 1];
+  }
   std::cout << "\n验证GPU到Switch连接..." << std::endl;
   for (int gpu_id = 0; gpu_id < 4; gpu_id++) {
     Node* gpu = group->get_gpu(gpu_id);
     std::cout << "  GPU " << gpu_id << " 连接到 ";
     for (int sw_id = 0; sw_id < 3; sw_id++) {
-      NodeID linked = gpu->link_nodes_[sw_id];
+      int gpu_port = gpu_port_base[sw_id];
+      NodeID linked = gpu->link_nodes_[gpu_port];
       std::cout << "Switch " << (linked.node_id - 4) << " ";
       assert(linked.node_id == 4 + sw_id);
     }
     std::cout << std::endl;
   }
-  
+
   std::cout << "\n验证Switch之间连接..." << std::endl;
   for (int sw1 = 0; sw1 < 3; sw1++) {
     Node* switch1 = group->get_nvswitch(sw1);
+    int port_offset = 4 * system->links_per_switch_[sw1];
     std::cout << "  Switch " << sw1 << " 连接到 ";
     for (int sw2 = 0; sw2 < 3; sw2++) {
       if (sw1 != sw2) {
-        int port_offset = 4;
         int port = (sw2 > sw1) ? (port_offset + sw2 - 1) : (port_offset + sw2);
-        if (port < 10) {
+        if (port < switch1->radix_) {
           NodeID linked = switch1->link_nodes_[port];
           if (linked.node_id == 4 + sw2) {
             std::cout << "Switch " << sw2 << " ";

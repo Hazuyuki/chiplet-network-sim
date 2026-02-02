@@ -145,47 +145,77 @@ void System::routing(Packet& p) const {
   assert(!p.candidate_channels_.empty());
 }
 
-void System::vc_allocate(Packet& p) const {
+// 轮询辅助：从 start 开始遍历 [0, n)，返回 (start + i) % n 的索引序列
+static void vc_allocate_round_robin(Packet& p, Node* sender, bool credit_mode) {
+  const int n = static_cast<int>(p.candidate_channels_.size());
+  if (n <= 0) return;
+  int start = sender->vc_rr_counter_.load(std::memory_order_relaxed) % n;
+
+  auto try_assign = [&](int idx) -> bool {
+    VCInfo& vc = p.candidate_channels_[idx];
+    int port = sender->get_port_to_buffer(vc.buffer);
+    if (port < 0) return false;
+    if (credit_mode) {
+      if (vc.buffer->is_empty(vc.vcb) && sender->has_credit(port, vc.vcb, p.length_)) {
+        p.next_vc_ = vc;
+        sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
+        return true;
+      }
+      return false;
+    }
+    if (vc.buffer->is_empty(vc.vcb) && vc.buffer->allocate_buffer(vc.vcb, p.length_)) {
+      p.next_vc_ = vc;
+      sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
+      return true;
+    }
+    return false;
+  };
+
+  auto try_assign_any = [&](int idx) -> bool {
+    VCInfo& vc = p.candidate_channels_[idx];
+    int port = sender->get_port_to_buffer(vc.buffer);
+    if (port < 0) return false;
+    if (credit_mode) {
+      if (sender->has_credit(port, vc.vcb, p.length_)) {
+        p.next_vc_ = vc;
+        sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
+        return true;
+      }
+      return false;
+    }
+    if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {
+      p.next_vc_ = vc;
+      sender->vc_rr_counter_.fetch_add(1, std::memory_order_relaxed);
+      return true;
+    }
+    return false;
+  };
+
+  // 优先空 VC，从 start 轮询
+  for (int i = 0; i < n; i++) {
+    int idx = (start + i) % n;
+    if (try_assign(idx)) return;
+  }
+  // 再试任意可用 VC，从 start 轮询
+  for (int i = 0; i < n; i++) {
+    int idx = (start + i) % n;
+    if (try_assign_any(idx)) return;
+  }
+}
+
+void System::vc_allocate(Packet& p) {
   VCInfo current_vc = p.head_trace();
   if (current_vc.buffer == nullptr ||
       current_vc.head_packet() == &p) {  // the packet is at the source or at the front of the queue
     Node* sender = get_node(current_vc.buffer == nullptr ? p.source_ : current_vc.id);
 
     if (param->flow_control == "credit") {
-      // Credit-based: 仅检查发送端 credit，不占用下游 buffer 计数
-      for (auto& vc : p.candidate_channels_) {
-        int port = sender->get_port_to_buffer(vc.buffer);
-        if (port < 0) continue;
-        if (vc.buffer->is_empty(vc.vcb) && sender->has_credit(port, vc.vcb, p.length_)) {
-          p.next_vc_ = vc;
-          return;
-        }
-      }
-      for (auto& vc : p.candidate_channels_) {
-        int port = sender->get_port_to_buffer(vc.buffer);
-        if (port < 0) continue;
-        if (sender->has_credit(port, vc.vcb, p.length_)) {
-          p.next_vc_ = vc;
-          return;
-        }
-      }
+      vc_allocate_round_robin(p, sender, true);
       return;
     }
 
-    // Buffer-based: 原有逻辑，在下游 buffer 上 allocate
-    for (auto& vc : p.candidate_channels_) {
-      if (vc.buffer->is_empty(vc.vcb))                        // try to allocate a empty vc
-        if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {  // virtual cut-through
-          p.next_vc_ = vc;
-          return;
-        }
-    }
-    for (auto& vc : p.candidate_channels_) {
-      if (vc.buffer->allocate_buffer(vc.vcb, p.length_)) {  // packet switching
-        p.next_vc_ = vc;
-        return;
-      }
-    }
+    // Buffer-based: 轮询
+    vc_allocate_round_robin(p, sender, false);
   }
 }
 

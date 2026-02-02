@@ -30,6 +30,7 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_simple.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_topology.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_credit_flow_control.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -66,6 +67,21 @@ add_executable(test_credit_flow_control
 target_include_directories(test_credit_flow_control PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
   target_link_libraries(test_credit_flow_control ${Boost_LIBRARIES})
+endif()
+
+# 包泼洒测试程序
+set(SRC_FILES_SPRAYING_TEST ${SRC_FILES})
+list(REMOVE_ITEM SRC_FILES_SPRAYING_TEST "src/main.cpp")
+add_executable(test_packet_spraying
+  src/topologies/test_packet_spraying.cpp
+  ${SRC_FILES_SPRAYING_TEST}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_packet_spraying PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_packet_spraying ${Boost_LIBRARIES})
 endif()
 
 # Add test executable for NVSwitch topology (full test suite, optional)

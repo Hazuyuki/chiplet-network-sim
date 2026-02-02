@@ -81,4 +81,7 @@ class Node {
 
   // Credit-based flow control: credits_[port * vc_num_ + vcb] = 可向该 port/VC 发送的 flit 数
   std::atomic_int* credits_{nullptr};
+
+  // VC 轮询选择：多候选时按此计数器轮流选择，实现包泼洒负载均衡
+  std::atomic<int> vc_rr_counter_{0};
 };

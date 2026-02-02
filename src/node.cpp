@@ -49,6 +49,7 @@ void Node::reset() {
   if (credits_ != nullptr) {
     init_credits();
   }
+  vc_rr_counter_.store(0);
 }
 
 void Node::init_credits() {
