@@ -32,6 +32,7 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_nvswitch_topology.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_credit_flow_control.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_throughput_bottleneck.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_rtt_deviation_diagnosis.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)

@@ -41,8 +41,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.o.d"
   "CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.o"
   "CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.o.d"
-  "CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o"
-  "CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o.d"
   "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o"
   "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o.d"
   "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o"

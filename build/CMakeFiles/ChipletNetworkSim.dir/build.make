@@ -377,24 +377,10 @@ CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.s: cmake_fo
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /share/zhuyu-nfs/chiplet-network-sim/src/topologies/single_chip_mesh.cpp -o CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.s
 
-CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o: CMakeFiles/ChipletNetworkSim.dir/flags.make
-CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o: ../src/topologies/test_rtt_deviation_diagnosis.cpp
-CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o: CMakeFiles/ChipletNetworkSim.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o -MF CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o.d -o CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o -c /share/zhuyu-nfs/chiplet-network-sim/src/topologies/test_rtt_deviation_diagnosis.cpp
-
-CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /share/zhuyu-nfs/chiplet-network-sim/src/topologies/test_rtt_deviation_diagnosis.cpp > CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
-
-CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /share/zhuyu-nfs/chiplet-network-sim/src/topologies/test_rtt_deviation_diagnosis.cpp -o CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
-
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o: CMakeFiles/ChipletNetworkSim.dir/flags.make
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o: ../src/traffic/allreduce_railx.cpp
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o: CMakeFiles/ChipletNetworkSim.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o -MF CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o.d -o CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o -c /share/zhuyu-nfs/chiplet-network-sim/src/traffic/allreduce_railx.cpp
 
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.i: cmake_force
@@ -408,7 +394,7 @@ CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.s: cmake_force
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o: CMakeFiles/ChipletNetworkSim.dir/flags.make
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o: ../src/traffic/allreduce_ring.cpp
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o: CMakeFiles/ChipletNetworkSim.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o -MF CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o.d -o CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o -c /share/zhuyu-nfs/chiplet-network-sim/src/traffic/allreduce_ring.cpp
 
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.i: cmake_force
@@ -422,7 +408,7 @@ CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.s: cmake_force
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o: CMakeFiles/ChipletNetworkSim.dir/flags.make
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o: ../src/traffic/allreduce_torus.cpp
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o: CMakeFiles/ChipletNetworkSim.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o -MF CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o.d -o CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o -c /share/zhuyu-nfs/chiplet-network-sim/src/traffic/allreduce_torus.cpp
 
 CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.i: cmake_force
@@ -457,7 +443,6 @@ ChipletNetworkSim_OBJECTS = \
 "CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_torus.cpp.o" \
 "CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.o" \
 "CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.o" \
-"CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o" \
 "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o" \
 "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o" \
 "CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o"
@@ -487,13 +472,12 @@ ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_hype
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_torus.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/topologies/railx_2d_twisted_torus.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/topologies/single_chip_mesh.cpp.o
-ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_railx.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_ring.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/src/traffic/allreduce_torus.cpp.o
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/build.make
 ChipletNetworkSim: CMakeFiles/ChipletNetworkSim.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Linking CXX executable ChipletNetworkSim"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Linking CXX executable ChipletNetworkSim"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ChipletNetworkSim.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

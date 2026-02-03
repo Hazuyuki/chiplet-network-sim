@@ -1075,11 +1075,6 @@ src/topologies/test_rtt_deviation_diagnosis.o: src/topologies/test_rtt_deviation
 
 # target to build an object file
 src/topologies/test_rtt_deviation_diagnosis.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_throughput_bottleneck.dir/build.make CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o
 .PHONY : src/topologies/test_rtt_deviation_diagnosis.cpp.o
 
@@ -1088,11 +1083,6 @@ src/topologies/test_rtt_deviation_diagnosis.i: src/topologies/test_rtt_deviation
 
 # target to preprocess a source file
 src/topologies/test_rtt_deviation_diagnosis.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_throughput_bottleneck.dir/build.make CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.i
 .PHONY : src/topologies/test_rtt_deviation_diagnosis.cpp.i
 
@@ -1101,11 +1091,6 @@ src/topologies/test_rtt_deviation_diagnosis.s: src/topologies/test_rtt_deviation
 
 # target to generate assembly for a file
 src/topologies/test_rtt_deviation_diagnosis.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_throughput_bottleneck.dir/build.make CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.s
 .PHONY : src/topologies/test_rtt_deviation_diagnosis.cpp.s
 

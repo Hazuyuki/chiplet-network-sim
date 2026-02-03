@@ -39,8 +39,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/railx_2d_twisted_torus.cpp.o.d"
   "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/single_chip_mesh.cpp.o"
   "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/single_chip_mesh.cpp.o.d"
-  "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o"
-  "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_rtt_deviation_diagnosis.cpp.o.d"
   "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_throughput_bottleneck.cpp.o"
   "CMakeFiles/test_throughput_bottleneck.dir/src/topologies/test_throughput_bottleneck.cpp.o.d"
   "CMakeFiles/test_throughput_bottleneck.dir/src/traffic/allreduce_railx.cpp.o"

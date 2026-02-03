@@ -57,6 +57,7 @@ struct Parameters {
   uint64_t simulation_time;
   double start_injection;
   double injection_increment;
+  double max_injection;  // 单流等实验：至少扫描到此注入率再判定饱和，0=不强制
   int timeout_threshold;
   int timeout_limit;
   int threads;

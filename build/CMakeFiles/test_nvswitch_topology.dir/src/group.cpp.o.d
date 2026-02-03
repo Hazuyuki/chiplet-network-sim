@@ -25,6 +25,7 @@ CMakeFiles/test_nvswitch_topology.dir/src/group.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
  /usr/include/c++/11/bits/move.h /usr/include/c++/11/type_traits \
+ /usr/include/c++/11/cstdint \
  /share/zhuyu-nfs/chiplet-network-sim/src/config.h \
  /usr/include/boost/property_tree/ini_parser.hpp \
  /usr/include/boost/property_tree/ptree.hpp \
@@ -173,7 +174,7 @@ CMakeFiles/test_nvswitch_topology.dir/src/group.cpp.o: \
  /usr/include/c++/11/backward/auto_ptr.h \
  /usr/include/c++/11/pstl/glue_memory_defs.h \
  /usr/include/c++/11/pstl/execution_defs.h /usr/include/c++/11/string \
- /usr/include/c++/11/bits/char_traits.h /usr/include/c++/11/cstdint \
+ /usr/include/c++/11/bits/char_traits.h \
  /usr/include/c++/11/bits/localefwd.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h \
  /usr/include/c++/11/clocale /usr/include/locale.h \

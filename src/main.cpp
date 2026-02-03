@@ -177,17 +177,20 @@ int main(int argc, char* argv[]) {
         run_one_cycle(all_packets, network, i);
       }
       TM->reset();
-      for (uint64_t i = 0;
-           i < param->simulation_time && TM->message_timeout_ <= param->timeout_limit;
-           i++) {
+      // 固定测量窗口：始终跑满 simulation_time 周期，不因超时提前结束，使不同 (R, 注入率) 可比
+      for (uint64_t i = 0; i < param->simulation_time; i++) {
         TM->genMes(all_packets);
         run_one_cycle(all_packets, network, i);
       }
       TM->print_statistics();
       if (TM->receiving_rate() > maximum_receiving_rate)
         maximum_receiving_rate = TM->receiving_rate();
-      // Saturated
-      if (TM->message_arrived_ < (TM->message_timeout_ + all_packets.size()) * 5) {
+      // Saturated: 仅当“到达过少”且（未设 max_injection 或 已扫描到 max_injection）时才停止
+      bool saturation_detected =
+          (TM->message_arrived_ < (TM->message_timeout_ + all_packets.size()) * 5);
+      bool reached_max_injection =
+          (param->max_injection <= 0 || TM->injection_rate_ >= param->max_injection);
+      if (saturation_detected && reached_max_injection) {
         std::cout << std::endl
                   << "Saturation point!" << std::endl
                   << "Maximum average receiving traffic: " << maximum_receiving_rate

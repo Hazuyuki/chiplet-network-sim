@@ -72,8 +72,10 @@ def main():
     ax.axvline(R_crit_spray, color="red", linestyle=":", linewidth=1, alpha=0.6)
     
     DELAYS = [0, 2, 4, 6, 8, 12, 16, 20, 24]
-    
-    # 读取包泼洒实验数据
+    # 固定注入率 18：所有 R 在相同 offered load 下比较，曲线随 R 单调下降，无虚假上升
+    OFFERED_LOAD = 18.0
+
+    # 包泼洒：取「注入率最接近 OFFERED_LOAD 时的吞吐」作为该 R 的吞吐（同一 offered load 可比）
     thr_sim_spray = []
     for d in DELAYS:
         path = os.path.join(OUTPUT_DIR, f"single_flow_delay_{d}.csv")
@@ -81,10 +83,14 @@ def main():
         if inj is None or len(inj) == 0:
             thr_sim_spray.append(np.nan)
             continue
-        thr_hi = np.max(thr)
-        thr_sim_spray.append(thr_hi)
-        ax.scatter([d], [thr_hi], color="red", s=80, zorder=5, marker='o', edgecolors="darkred", linewidths=1.5)
-    
+        # 选择注入率最接近 OFFERED_LOAD 的那一行（避免 18.5 覆盖 18 的值）
+        diffs = np.abs(inj - OFFERED_LOAD)
+        best_idx = int(np.argmin(diffs))
+        thr_sim_spray.append(float(thr[best_idx]))
+    for i, d in enumerate(DELAYS):
+        if not np.isnan(thr_sim_spray[i]):
+            ax.scatter([d], [thr_sim_spray[i]], color="red", s=80, zorder=5, marker='o', edgecolors="darkred", linewidths=1.5)
+
     # Direct routing 对比数据（之前的结果）
     direct_data = {0: 1.0, 2: 1.0, 4: 1.0, 6: 1.0, 8: 0.94, 12: 0.75, 16: 0.66, 20: 0.58, 24: 0.53}
     for d in DELAYS:
@@ -92,14 +98,15 @@ def main():
             ax.scatter([d], [direct_data[d]], color="blue", s=80, zorder=5, marker='s', edgecolors="darkblue", linewidths=1.5)
 
     # 图例和标注
-    ax.scatter([], [], color="red", s=80, marker='o', edgecolors="darkred", linewidths=1.5, label="Packet Spraying (18 links, min+RR)")
+    ax.scatter([], [], color="red", s=80, marker='o', edgecolors="darkred", linewidths=1.5,
+               label=f"Packet Spraying (offered load={OFFERED_LOAD:.0f})")
     ax.scatter([], [], color="blue", s=80, marker='s', edgecolors="darkblue", linewidths=1.5, label="Direct Routing (1 link)")
     
     formula_text = (
         r"Throughput$(R) = \min\left(B,\; \frac{C_{eff}}{T_{other}+R}\right)$"
         + f"\n\nDirect: $B=1$, $C_{{eff}}=16$, $T_{{other}}={T_other_single}$ → $R_{{crit}}≈{R_crit_single:.0f}$"
         + f"\nSpray:  $B=18$, $C_{{eff}}=288$, $T_{{other}}={T_other_spray}$ → $R_{{crit}}≈{R_crit_spray:.0f}$"
-        + f"\n\nSpray improvement: ~18x at low RTT (1 -> 18)"
+        + f"\n\nSpray 散点: 固定 offered load={OFFERED_LOAD:.0f} 时的实际吞吐（可比、随 R 单调）"
         + "\n(Sim < formula when R large: per-link credits + staggered return)"
     )
     ax.text(0.03, 0.97, formula_text, transform=ax.transAxes, fontsize=10,
@@ -108,7 +115,7 @@ def main():
 
     ax.legend(loc="upper right", fontsize=10)
     ax.set_xlabel("Credit return delay R (cycles)", fontsize=12)
-    ax.set_ylabel("Throughput (flits/cycle)", fontsize=12)
+    ax.set_ylabel("Throughput at offered load=18 (flits/cycle)", fontsize=12)
     ax.set_title("Single Flow: Packet Spraying vs Direct Routing — RTT Impact", fontsize=13, fontweight='bold')
     ax.set_xlim(0, 28)
     ax.set_ylim(0, 19)

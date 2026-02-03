@@ -1,5 +1,6 @@
 #pragma once
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 #include "group.h"
@@ -65,6 +66,12 @@ class System {
   }
   uint64_t get_diag_no_credit_blocked() const { return diag_no_credit_blocked_; }
   uint64_t get_diag_credit_returns_last_cycle() const { return diag_credit_returns_last_cycle_; }
+  void record_diag_injected(uint64_t n) {
+    if (diagnostics_enabled_) diag_injected_last_cycle_ += n;
+  }
+  uint64_t get_diag_injected_last_cycle() const { return diag_injected_last_cycle_; }
+  void record_diag_injected_port(Node* node, int port);
+  uint64_t get_diag_injected_port_count(Node* node) const;
 
  protected:
   std::vector<Group*> groups_;
@@ -82,4 +89,6 @@ class System {
   bool diagnostics_enabled_ = false;
   mutable uint64_t diag_no_credit_blocked_ = 0;      // VC 分配因无可用 credit 而失败次数
   mutable uint64_t diag_credit_returns_last_cycle_ = 0;  // 上一周期 credit 回报的 flit 数
+  mutable uint64_t diag_injected_last_cycle_ = 0;     // 上一周期源端实际注入的 flit 数
+  mutable std::unordered_map<Node*, std::vector<uint8_t>> diag_injected_ports_;
 };

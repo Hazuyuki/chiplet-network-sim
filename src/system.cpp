@@ -80,6 +80,8 @@ void System::push_pending_credit_return(uint64_t delivery_cycle, Node* node, int
 void System::reset_diagnostics() {
   diag_no_credit_blocked_ = 0;
   diag_credit_returns_last_cycle_ = 0;
+  diag_injected_last_cycle_ = 0;
+  diag_injected_ports_.clear();
 }
 
 void System::process_pending_credits(uint64_t current_cycle) {
@@ -97,10 +99,32 @@ void System::process_pending_credits(uint64_t current_cycle) {
     }
   }
   diag_credit_returns_last_cycle_ = 0;
+  diag_injected_last_cycle_ = 0;
+  for (auto& it : diag_injected_ports_) {
+    std::fill(it.second.begin(), it.second.end(), 0);
+  }
   for (auto& e : to_deliver) {
     if (diagnostics_enabled_) diag_credit_returns_last_cycle_ += e.n;
     e.node->return_credit(e.port, e.vcb, e.n);
   }
+}
+
+void System::record_diag_injected_port(Node* node, int port) {
+  if (!diagnostics_enabled_ || node == nullptr || port < 0) return;
+  auto& vec = diag_injected_ports_[node];
+  if (vec.size() < static_cast<size_t>(node->radix_)) {
+    vec.assign(node->radix_, 0);
+  }
+  if (port < static_cast<int>(vec.size())) vec[port] = 1;
+}
+
+uint64_t System::get_diag_injected_port_count(Node* node) const {
+  if (!diagnostics_enabled_ || node == nullptr) return 0;
+  auto it = diag_injected_ports_.find(node);
+  if (it == diag_injected_ports_.end()) return 0;
+  uint64_t count = 0;
+  for (uint8_t v : it->second) count += v ? 1 : 0;
+  return count;
 }
 
 void System::init_flow_control() {
@@ -208,22 +232,53 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
     return;
   }
 
-  // 3. 在候选端口中找出负载最低的值
-  uint64_t min_usage = UINT64_MAX;
-  for (const auto& [buf, port] : candidates) {
-    uint64_t usage = sender->get_port_usage(port);
-    if (usage < min_usage) min_usage = usage;
-  }
-
-  // 4. 收集负载等于最低值的端口
-  std::vector<std::pair<Buffer*, int>> min_ports;
-  for (const auto& [buf, port] : candidates) {
-    if (sender->get_port_usage(port) == min_usage) {
-      min_ports.emplace_back(buf, port);
+  // 3. 优先级策略（更均衡的端口使用）
+  // credit 模式：按「当前可用 credit」降序优先（credit 多的端口先选），避免单口耗尽、其余空闲；同 credit 时按 port_usage 升序
+  // 非 credit 模式：按 port_usage 升序（最少使用优先）
+  std::vector<std::pair<Buffer*, int>> ordered_ports;
+  if (credit_mode) {
+    struct PortCredit {
+      Buffer* buf;
+      int port;
+      int max_credit;
+      uint64_t usage;
+    };
+    std::vector<PortCredit> with_credit;
+    for (const auto& [buf, port] : candidates) {
+      const auto& indices = port_to_indices[buf];
+      int max_c = 0;
+      for (int idx : indices) {
+        const VCInfo& vc = p.candidate_channels_[idx];
+        if (sender->has_credit(port, vc.vcb, p.length_)) {
+          int c = sender->get_credit(port, vc.vcb);
+          if (c > max_c) max_c = c;
+        }
+      }
+      with_credit.push_back({buf, port, max_c, sender->get_port_usage(port)});
+    }
+    std::sort(with_credit.begin(), with_credit.end(), [](const PortCredit& a, const PortCredit& b) {
+      if (a.max_credit != b.max_credit) return a.max_credit > b.max_credit;
+      return a.usage < b.usage;
+    });
+    for (const auto& x : with_credit)
+      ordered_ports.emplace_back(x.buf, x.port);
+  } else {
+    uint64_t min_usage = UINT64_MAX;
+    for (const auto& [buf, port] : candidates) {
+      uint64_t u = sender->get_port_usage(port);
+      if (u < min_usage) min_usage = u;
+    }
+    for (const auto& [buf, port] : candidates) {
+      if (sender->get_port_usage(port) == min_usage)
+        ordered_ports.emplace_back(buf, port);
+    }
+    for (const auto& [buf, port] : candidates) {
+      if (sender->get_port_usage(port) > min_usage)
+        ordered_ports.emplace_back(buf, port);
     }
   }
 
-  // 尝试在指定端口的 VC 列表中分配；credit 模式下只选 has_credit 的 VC，不分配给 credit 不足的 VC
+  // 尝试在指定端口的 VC 列表中分配；credit 模式下只选 has_credit 的 VC
   auto try_port = [&](Buffer* buf, int port, bool empty_only) -> bool {
     const auto& indices = port_to_indices[buf];
     for (int idx : indices) {
@@ -250,26 +305,13 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
     return false;
   };
 
-  // 5. 从负载最低的端口中尝试（优先空 VC）
-  for (const auto& [buf, port] : min_ports) {
+  // 5. 按优先级顺序尝试（credit 模式：credit 多→少；buffer 模式：usage 低→高），优先空 VC
+  for (const auto& [buf, port] : ordered_ports) {
     if (try_port(buf, port, true)) return;
   }
-
-  // 6. 再试任意可用 VC（仍只选 credit 足够的）
-  for (const auto& [buf, port] : min_ports) {
+  // 6. 再试任意可用 VC
+  for (const auto& [buf, port] : ordered_ports) {
     if (try_port(buf, port, false)) return;
-  }
-
-  // 7. 其他候选端口
-  for (const auto& [buf, port] : candidates) {
-    if (sender->get_port_usage(port) > min_usage) {
-      if (try_port(buf, port, true)) return;
-    }
-  }
-  for (const auto& [buf, port] : candidates) {
-    if (sender->get_port_usage(port) > min_usage) {
-      if (try_port(buf, port, false)) return;
-    }
   }
 }
 
@@ -294,6 +336,12 @@ void System::switch_allocate(Packet& p) {
   if (current_vc.buffer == nullptr) {              // the packet is at the source
     if (p.next_vc_.buffer->allocate_in_link(p)) {  // wait for link to the next buffer
       p.switch_allocated_ = true;
+      if (diagnostics_enabled_) record_diag_injected(p.length_);
+      if (diagnostics_enabled_) {
+        Node* sender = get_node(p.source_);
+        int port = sender->get_port_to_buffer(p.next_vc_.buffer);
+        record_diag_injected_port(sender, port);
+      }
     }
   } else if (current_vc.head_packet() == &p) {
     if (current_vc.buffer->allocate_sw_link()) {     // try to allocate the link to the switch
