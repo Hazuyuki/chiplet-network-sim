@@ -3,6 +3,31 @@
 #include <algorithm>
 #include <random>
 
+NVSwitchSpineGroup::NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num, int buffer_size,
+                                       Channel switch_switch_channel)
+    : Group(), num_spine_switches_(num_spine_sw) {
+  num_nodes_ = num_spine_sw;
+  num_cores_ = 0;
+  for (int i = 0; i < num_spine_sw; i++) {
+    nodes_.push_back(new Node(spine_radix, vc_num, buffer_size, switch_switch_channel));
+  }
+}
+
+NVSwitchSpineGroup::~NVSwitchSpineGroup() {
+  for (auto node : nodes_) {
+    delete node;
+  }
+  nodes_.clear();
+}
+
+void NVSwitchSpineGroup::set_group(System* system, int group_id) {
+  system_ = system;
+  group_id_ = group_id;
+  for (int i = 0; i < num_spine_switches_; i++) {
+    nodes_[i]->set_node(this, NodeID(i, group_id));
+  }
+}
+
 NVSwitchGroup::NVSwitchGroup(int num_gpus, int num_switches, int gpu_nvlink_ports, int leaf_switch_radix,
                              int vc_num, int buffer_size,
                              Channel gpu_switch_channel, Channel switch_switch_channel,
@@ -58,8 +83,8 @@ NVSwitchSystem::NVSwitchSystem() {
   // Set base class num_groups_ for print_config()
   System::num_groups_ = num_groups_;
 
-  // Create groups
-  groups_.reserve(num_groups_);
+  // Create groups (machine groups with GPUs + leaf switches)
+  groups_.reserve(num_groups_ + (num_spine_switches_ > 0 ? 1 : 0));
   for (int group_id = 0; group_id < num_groups_; group_id++) {
     groups_.push_back(new NVSwitchGroup(num_gpus_per_group_, num_switches_per_group_,
                                        gpu_nvlink_ports_, leaf_switch_radix_,
@@ -69,11 +94,26 @@ NVSwitchSystem::NVSwitchSystem() {
     groups_[group_id]->set_group(this, group_id);
   }
 
+  // Create spine group (for inter-group via spine)
+  if (num_spine_switches_ > 0) {
+    int spine_radix = num_groups_ * num_switches_per_group_;
+    groups_.push_back(new NVSwitchSpineGroup(num_spine_switches_, spine_radix,
+                                            param->vc_number, param->buffer_size,
+                                            switch_switch_channel_));
+    groups_[num_groups_]->set_group(this, num_groups_);
+    num_nodes_ += num_spine_switches_;
+  }
+
   // Connect GPUs to switches
   connect_gpus_to_switches();
   
-  // Connect switches
+  // Connect switches (leaf-leaf within group, and leaf-leaf between groups if no spine)
   connect_switches();
+
+  // Connect leaf to spine (when spine exists)
+  if (num_spine_switches_ > 0) {
+    connect_leaf_to_spine();
+  }
 
   print_config();
 }
@@ -111,15 +151,29 @@ void NVSwitchSystem::read_config() {
     links_per_switch_[sw] = base + (sw < remainder ? 1 : 0);
   }
 
-  // Leaf switch radix: GPU links + intra-group switch links + optional spine uplinks
+  // Leaf switch radix: GPU links + intra-group switch links + spine uplinks (or inter-group direct)
   int max_gpu_ports = 0;
   for (int sw = 0; sw < num_switches_per_group_; sw++) {
     int gpu_ports = num_gpus_per_group_ * links_per_switch_[sw];
     if (gpu_ports > max_gpu_ports) max_gpu_ports = gpu_ports;
   }
   int intra_sw_ports = num_switches_per_group_ - 1;
+  bool spine_non_blocking =
+      param->params_ptree.get<bool>("Network.spine_non_blocking", false);
+  if (spine_non_blocking && num_groups_ > 1) {
+    num_spine_switches_ = max_gpu_ports;
+    inter_group_sw_connect_ = false;
+    printf("Spine non-blocking: num_spine_switches = %d (max_gpu_ports)\n",
+           num_spine_switches_);
+  }
   int spine_ports = num_spine_switches_;
-  leaf_switch_radix_ = max_gpu_ports + intra_sw_ports + spine_ports;
+  int inter_group_ports = 0;
+  if (num_spine_switches_ == 0 && inter_group_sw_connect_ && num_groups_ > 1) {
+    // Port indices inter_offset + group2_id for group2_id=1..num_groups_-1,
+    // max index = inter_offset + num_groups_ - 1, so need num_groups_ extra ports
+    inter_group_ports = num_groups_;
+  }
+  leaf_switch_radix_ = max_gpu_ports + intra_sw_ports + spine_ports + inter_group_ports;
 
   printf("NVSwitch Topology: %d groups, %d GPUs/group, %d Leaf switches/group, "
          "gpu_nvlink_ports=%d, leaf_switch_radix=%d, spine=%d\n",
@@ -138,6 +192,9 @@ void NVSwitchSystem::print_config() {
   std::cout << "  num_spine_switches: " << num_spine_switches_ << std::endl;
   std::cout << "  switches_fully_connected: " << switches_fully_connected_ << std::endl;
   std::cout << "  inter_group_sw_connect: " << inter_group_sw_connect_ << std::endl;
+  std::cout << "  spine_non_blocking: "
+            << param->params_ptree.get<bool>("Network.spine_non_blocking", false)
+            << std::endl;
   std::cout << "  routing_algorithm: " << algorithm_ << std::endl;
 }
 
@@ -190,7 +247,10 @@ void NVSwitchSystem::connect_switches() {
     }
   }
 
-  // Connect switches between groups (legacy, when no Spine)
+  // Connect leaf to spine (Leaf-Spine topology for inter-group)
+  // Handled in connect_leaf_to_spine() when num_spine_switches_ > 0
+
+  // Connect switches between groups (legacy direct leaf-leaf, when no Spine)
   if (inter_group_sw_connect_ && num_groups_ > 1 && num_spine_switches_ == 0) {
     for (int group1_id = 0; group1_id < num_groups_; group1_id++) {
       for (int group2_id = group1_id + 1; group2_id < num_groups_; group2_id++) {
@@ -206,6 +266,28 @@ void NVSwitchSystem::connect_switches() {
           if (sw1_port < sw1->radix_ && sw2_port < sw2->radix_) {
             Port::connect_port(sw1->ports_[sw1_port], sw2->ports_[sw2_port]);
           }
+        }
+      }
+    }
+  }
+}
+
+void NVSwitchSystem::connect_leaf_to_spine() {
+  NVSwitchSpineGroup* spine_group = get_spine_group();
+  if (spine_group == nullptr) return;
+
+  int intra_sw_ports = num_switches_per_group_ - 1;
+  for (int spine_id = 0; spine_id < num_spine_switches_; spine_id++) {
+    Node* spine = spine_group->get_spine_switch(spine_id);
+    for (int group_id = 0; group_id < num_groups_; group_id++) {
+      NVSwitchGroup* group = get_group(group_id);
+      for (int sw_id = 0; sw_id < num_switches_per_group_; sw_id++) {
+        Node* leaf = group->get_nvswitch(sw_id);
+        int gpu_ports_end = num_gpus_per_group_ * links_per_switch_[sw_id];
+        int leaf_spine_port = gpu_ports_end + intra_sw_ports + spine_id;
+        int spine_port = group_id * num_switches_per_group_ + sw_id;
+        if (leaf_spine_port < leaf->radix_ && spine_port < spine->radix_) {
+          Port::connect_port(leaf->ports_[leaf_spine_port], spine->ports_[spine_port]);
         }
       }
     }
@@ -232,6 +314,21 @@ void NVSwitchSystem::direct_routing(Packet& s) const {
   std::vector<int> gpu_port_base(num_switches_per_group_);
   for (int sw = 1; sw < num_switches_per_group_; sw++) {
     gpu_port_base[sw] = gpu_port_base[sw - 1] + links_per_switch_[sw - 1];
+  }
+
+  // If current node is a spine switch: route down to leaf in dest group
+  if (num_spine_switches_ > 0 && cur_group_id == num_groups_) {
+    int dest_sw_id = dest_node_id % num_switches_per_group_;
+    int spine_port = dest_group_id * num_switches_per_group_ + dest_sw_id;
+    if (spine_port < cur_node->radix_) {
+      Buffer* next_buffer = cur_node->link_buffers_[spine_port];
+      if (next_buffer != nullptr) {
+        for (int i = 0; i < param->vc_number; i++) {
+          s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+        }
+      }
+    }
+    return;
   }
 
   // If current node is a GPU
@@ -286,28 +383,45 @@ void NVSwitchSystem::direct_routing(Packet& s) const {
         }
       }
     }
-    if (s.candidate_channels_.empty() && cur_group_id != dest_group_id && inter_group_sw_connect_) {
-      int inter_offset = intra_sw_offset + num_switches_per_group_ - 1;
-      for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
-        Buffer* next_buffer = cur_node->link_buffers_[port_id];
-        if (next_buffer != nullptr) {
-          NodeID next_node_id = cur_node->link_nodes_[port_id];
-          if (next_node_id.group_id == dest_group_id || next_node_id.group_id != cur_group_id) {
-            for (int i = 0; i < param->vc_number; i++) {
-              s.candidate_channels_.push_back(VCInfo(next_buffer, i));
-            }
-            break;
-          }
-        }
-      }
-      if (s.candidate_channels_.empty()) {
-        for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+    // Cross-group: via spine uplinks or direct leaf-leaf
+    if (s.candidate_channels_.empty() && cur_group_id != dest_group_id) {
+      if (num_spine_switches_ > 0) {
+        // Use spine uplinks (Leaf-Spine topology)
+        int spine_offset = intra_sw_offset + num_switches_per_group_ - 1;
+        for (int spine_id = 0; spine_id < num_spine_switches_; spine_id++) {
+          int port_id = spine_offset + spine_id;
+          if (port_id >= cur_node->radix_) break;
           Buffer* next_buffer = cur_node->link_buffers_[port_id];
           if (next_buffer != nullptr) {
             for (int i = 0; i < param->vc_number; i++) {
               s.candidate_channels_.push_back(VCInfo(next_buffer, i));
             }
-            break;
+            break;  // direct: pick one spine
+          }
+        }
+      } else if (inter_group_sw_connect_) {
+        int inter_offset = intra_sw_offset + num_switches_per_group_ - 1;
+        for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+          Buffer* next_buffer = cur_node->link_buffers_[port_id];
+          if (next_buffer != nullptr) {
+            NodeID next_node_id = cur_node->link_nodes_[port_id];
+            if (next_node_id.group_id == dest_group_id || next_node_id.group_id != cur_group_id) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
+              break;
+            }
+          }
+        }
+        if (s.candidate_channels_.empty()) {
+          for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+            Buffer* next_buffer = cur_node->link_buffers_[port_id];
+            if (next_buffer != nullptr) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
+              break;
+            }
           }
         }
       }
@@ -339,6 +453,21 @@ void NVSwitchSystem::min_routing(Packet& s) const {
   std::vector<int> gpu_port_base(num_switches_per_group_);
   for (int sw = 1; sw < num_switches_per_group_; sw++) {
     gpu_port_base[sw] = gpu_port_base[sw - 1] + links_per_switch_[sw - 1];
+  }
+
+  // If current node is a spine switch: route down to leaf in dest group
+  if (num_spine_switches_ > 0 && cur_group_id == num_groups_) {
+    int dest_sw_id = dest_node_id % num_switches_per_group_;
+    int spine_port = dest_group_id * num_switches_per_group_ + dest_sw_id;
+    if (spine_port < cur_node->radix_) {
+      Buffer* next_buffer = cur_node->link_buffers_[spine_port];
+      if (next_buffer != nullptr) {
+        for (int i = 0; i < param->vc_number; i++) {
+          s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+        }
+      }
+    }
+    return;
   }
 
   // If current node is a GPU: add all ports to all switches (packet spraying)
@@ -375,27 +504,42 @@ void NVSwitchSystem::min_routing(Packet& s) const {
         }
       }
     }
-    if (s.candidate_channels_.empty() && cur_group_id != dest_group_id && inter_group_sw_connect_) {
-      int inter_offset = intra_sw_offset + num_switches_per_group_ - 1;
-      for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
-        Buffer* next_buffer = cur_node->link_buffers_[port_id];
-        if (next_buffer != nullptr) {
-          NodeID next_node_id = cur_node->link_nodes_[port_id];
-          if (next_node_id.group_id == dest_group_id || next_node_id.group_id != cur_group_id) {
-            for (int i = 0; i < param->vc_number; i++) {
-              s.candidate_channels_.push_back(VCInfo(next_buffer, i));
-            }
-          }
-        }
-      }
-      if (s.candidate_channels_.empty()) {
-        for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+    // Cross-group: via spine uplinks or direct leaf-leaf
+    if (s.candidate_channels_.empty() && cur_group_id != dest_group_id) {
+      if (num_spine_switches_ > 0) {
+        int spine_offset = intra_sw_offset + num_switches_per_group_ - 1;
+        for (int spine_id = 0; spine_id < num_spine_switches_; spine_id++) {
+          int port_id = spine_offset + spine_id;
+          if (port_id >= cur_node->radix_) break;
           Buffer* next_buffer = cur_node->link_buffers_[port_id];
           if (next_buffer != nullptr) {
             for (int i = 0; i < param->vc_number; i++) {
               s.candidate_channels_.push_back(VCInfo(next_buffer, i));
             }
-            break;
+          }
+        }
+      } else if (inter_group_sw_connect_) {
+        int inter_offset = intra_sw_offset + num_switches_per_group_ - 1;
+        for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+          Buffer* next_buffer = cur_node->link_buffers_[port_id];
+          if (next_buffer != nullptr) {
+            NodeID next_node_id = cur_node->link_nodes_[port_id];
+            if (next_node_id.group_id == dest_group_id || next_node_id.group_id != cur_group_id) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
+            }
+          }
+        }
+        if (s.candidate_channels_.empty()) {
+          for (int port_id = inter_offset; port_id < cur_node->radix_; port_id++) {
+            Buffer* next_buffer = cur_node->link_buffers_[port_id];
+            if (next_buffer != nullptr) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
+              break;
+            }
           }
         }
       }

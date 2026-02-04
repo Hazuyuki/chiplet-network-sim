@@ -1,6 +1,17 @@
 #pragma once
 #include "system.h"
 
+// NVSwitchSpineGroup holds spine switches for inter-group connectivity (Leaf-Spine topology)
+class NVSwitchSpineGroup : public Group {
+ public:
+  NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num, int buffer_size,
+                     Channel switch_switch_channel);
+  ~NVSwitchSpineGroup();
+  void set_group(System* system, int group_id) override;
+  inline Node* get_spine_switch(int spine_id) const { return nodes_[spine_id]; }
+  int num_spine_switches_;
+};
+
 // NVSwitchGroup represents a group (node) containing GPUs and Leaf NVSwitches
 // Each GPU has gpu_nvlink_ports links distributed across switches for packet spraying
 class NVSwitchGroup : public Group {
@@ -49,6 +60,12 @@ class NVSwitchSystem : public System {
   inline NVSwitchGroup* get_group(int group_id) const {
     return static_cast<NVSwitchGroup*>(System::get_group(group_id));
   }
+  inline NVSwitchSpineGroup* get_spine_group() const {
+    return num_spine_switches_ > 0
+               ? static_cast<NVSwitchSpineGroup*>(groups_[num_groups_])
+               : nullptr;
+  }
+  void connect_leaf_to_spine();
 
   std::string algorithm_;
 
