@@ -21,6 +21,7 @@ class TrafficManager {
   Packet* uniform_mess();
   Packet* single_flow_mess();  // 单发单收：固定 node0 -> node1，用于单链路公式验证
   Packet* intra_group_uniform_mess();
+  Packet* inter_group_uniform_mess();  // 多流跨 node：src/dest 必在不同 group，用于验证 spine 无阻塞
   Packet* hotspot_mess();
   Packet* bitcomplement_mess();
   Packet* bitreverse_mess();

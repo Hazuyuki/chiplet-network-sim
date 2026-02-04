@@ -58,6 +58,7 @@ void Node::reset() {
   if (port_usage_ != nullptr) {
     init_port_usage();
   }
+  vc_alloc_round_robin_.store(0, std::memory_order_relaxed);
 }
 
 void Node::init_credits() {

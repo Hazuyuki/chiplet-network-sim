@@ -233,7 +233,7 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
   }
 
   // 3. 优先级策略（更均衡的端口使用）
-  // credit 模式：按「当前可用 credit」降序优先（credit 多的端口先选），避免单口耗尽、其余空闲；同 credit 时按 port_usage 升序
+  // credit 模式：按「当前可用 credit」降序；同 credit 时按 port_usage 升序；再同则按 round-robin 轮转端口，使包泼洒在多线程下也能铺满 18 口
   // 非 credit 模式：按 port_usage 升序（最少使用优先）
   std::vector<std::pair<Buffer*, int>> ordered_ports;
   if (credit_mode) {
@@ -256,10 +256,14 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
       }
       with_credit.push_back({buf, port, max_c, sender->get_port_usage(port)});
     }
-    std::sort(with_credit.begin(), with_credit.end(), [](const PortCredit& a, const PortCredit& b) {
-      if (a.max_credit != b.max_credit) return a.max_credit > b.max_credit;
-      return a.usage < b.usage;
-    });
+    const int nports = static_cast<int>(with_credit.size());
+    const uint64_t rr = sender->next_vc_alloc_round_robin();
+    std::sort(with_credit.begin(), with_credit.end(),
+              [nports, rr](const PortCredit& a, const PortCredit& b) {
+                if (a.max_credit != b.max_credit) return a.max_credit > b.max_credit;
+                if (a.usage != b.usage) return a.usage < b.usage;
+                return ((a.port + rr) % nports) < ((b.port + rr) % nports);
+              });
     for (const auto& x : with_credit)
       ordered_ports.emplace_back(x.buf, x.port);
   } else {

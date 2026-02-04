@@ -159,6 +159,8 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
       mess = single_flow_mess();
     else if (traffic_ == "intra_group_uniform")
       mess = intra_group_uniform_mess();
+    else if (traffic_ == "inter_group_uniform")
+      mess = inter_group_uniform_mess();
     else if (traffic_ == "hotspot")
       mess = hotspot_mess();
     else if (traffic_ == "bitcomplement")
@@ -191,8 +193,9 @@ Packet* TrafficManager::uniform_mess() {
 }
 
 Packet* TrafficManager::single_flow_mess() {
-  // 单发单收：固定 0 -> 1，traffic_scale 应为 1 使注入率表示该单流速率
-  return new Packet(network->int_to_nodeid(0), network->int_to_nodeid(1), message_length_);
+  // 单发单收：固定 0 -> single_flow_dest，traffic_scale 应为 1 使注入率表示该单流速率
+  return new Packet(network->int_to_nodeid(0), network->int_to_nodeid(param->single_flow_dest),
+                    message_length_);
 }
 
 Packet* TrafficManager::intra_group_uniform_mess() {
@@ -202,6 +205,18 @@ Packet* TrafficManager::intra_group_uniform_mess() {
     dest = gen() % traffic_scale_;
     if (dest != src) break;
   }
+  return new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
+}
+
+Packet* TrafficManager::inter_group_uniform_mess() {
+  // 多流跨 node：源和目的必在不同 group，所有流量经 spine，用于验证无阻塞
+  int num_groups = network->num_groups_;
+  if (num_groups < 2) return uniform_mess();
+  int cores_per_group = traffic_scale_ / num_groups;
+  int src = gen() % traffic_scale_;
+  int group_src = src / cores_per_group;
+  int other_group = (group_src + 1 + gen() % (num_groups - 1)) % num_groups;
+  int dest = other_group * cores_per_group + gen() % cores_per_group;
   return new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
 }
 

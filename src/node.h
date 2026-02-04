@@ -88,4 +88,10 @@ class Node {
   void init_port_usage();
   uint64_t get_port_usage(int port) const;
   void increment_port_usage(int port);
+
+  // 包泼洒 tie-breaker：同 (credit, usage) 时按轮转选端口，避免多线程下多包抢同一口
+  std::atomic<uint64_t> vc_alloc_round_robin_{0};
+  uint64_t next_vc_alloc_round_robin() {
+    return vc_alloc_round_robin_.fetch_add(1, std::memory_order_relaxed);
+  }
 };

@@ -52,6 +52,7 @@ struct Parameters {
   std::string traffic;
   int traffic_scale;
   int packet_length;  // # of flits
+  int single_flow_dest;  // single_flow 目的节点 (默认 1)，用于路径对比实验
 
   // Simulation Parameters
   uint64_t simulation_time;
@@ -81,6 +82,8 @@ struct Parameters {
     std::cout << std::setw(20) << "Processing Time: " << processing_time << std::endl;
     std::cout << std::setw(20) << "Traffic: " << traffic << std::endl;
     std::cout << std::setw(20) << "Packet Length: " << packet_length << std::endl;
+    if (traffic == "single_flow")
+      std::cout << std::setw(20) << "Single Flow Dest: " << single_flow_dest << std::endl;
     std::cout << std::setw(20) << "Simulation Time: " << simulation_time << std::endl;
     std::cout << std::setw(20) << "Inject Increment: " << injection_increment << std::endl;
     std::cout << std::setw(20) << "Timeout Threshold: " << timeout_threshold << std::endl;
