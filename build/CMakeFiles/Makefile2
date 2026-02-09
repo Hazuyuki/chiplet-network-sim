@@ -69,6 +69,10 @@ all: CMakeFiles/test_credit_flow_control.dir/all
 all: CMakeFiles/test_packet_spraying.dir/all
 all: CMakeFiles/test_throughput_bottleneck.dir/all
 all: CMakeFiles/test_rtt_deviation_diagnosis.dir/all
+all: CMakeFiles/test_allreduce_diagnosis.dir/all
+all: CMakeFiles/test_link_bottleneck_diagnosis.dir/all
+all: CMakeFiles/test_packet_spraying_verify.dir/all
+all: CMakeFiles/test_gpu_18port_usage.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -82,6 +86,10 @@ clean: CMakeFiles/test_credit_flow_control.dir/clean
 clean: CMakeFiles/test_packet_spraying.dir/clean
 clean: CMakeFiles/test_throughput_bottleneck.dir/clean
 clean: CMakeFiles/test_rtt_deviation_diagnosis.dir/clean
+clean: CMakeFiles/test_allreduce_diagnosis.dir/clean
+clean: CMakeFiles/test_link_bottleneck_diagnosis.dir/clean
+clean: CMakeFiles/test_packet_spraying_verify.dir/clean
+clean: CMakeFiles/test_gpu_18port_usage.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -91,12 +99,12 @@ clean: CMakeFiles/test_rtt_deviation_diagnosis.dir/clean
 CMakeFiles/ChipletNetworkSim.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ChipletNetworkSim.dir/build.make CMakeFiles/ChipletNetworkSim.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Built target ChipletNetworkSim"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target ChipletNetworkSim"
 .PHONY : CMakeFiles/ChipletNetworkSim.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ChipletNetworkSim.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ChipletNetworkSim.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/ChipletNetworkSim.dir/rule
@@ -117,12 +125,12 @@ CMakeFiles/ChipletNetworkSim.dir/clean:
 CMakeFiles/test_nvswitch_topology.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_nvswitch_topology.dir/build.make CMakeFiles/test_nvswitch_topology.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50 "Built target test_nvswitch_topology"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=51,52,53,54,55,56,57,58,59,60 "Built target test_nvswitch_topology"
 .PHONY : CMakeFiles/test_nvswitch_topology.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_nvswitch_topology.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 17
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_nvswitch_topology.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_nvswitch_topology.dir/rule
@@ -143,12 +151,12 @@ CMakeFiles/test_nvswitch_topology.dir/clean:
 CMakeFiles/test_credit_flow_control.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_credit_flow_control.dir/build.make CMakeFiles/test_credit_flow_control.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33 "Built target test_credit_flow_control"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=21,22,23,24,25,26,27,28,29,30 "Built target test_credit_flow_control"
 .PHONY : CMakeFiles/test_credit_flow_control.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_credit_flow_control.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 17
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_credit_flow_control.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_credit_flow_control.dir/rule
@@ -169,12 +177,12 @@ CMakeFiles/test_credit_flow_control.dir/clean:
 CMakeFiles/test_packet_spraying.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying.dir/build.make CMakeFiles/test_packet_spraying.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66 "Built target test_packet_spraying"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=61,62,63,64,65,66,67,68,69,70 "Built target test_packet_spraying"
 .PHONY : CMakeFiles/test_packet_spraying.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_packet_spraying.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 16
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_packet_spraying.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_packet_spraying.dir/rule
@@ -195,12 +203,12 @@ CMakeFiles/test_packet_spraying.dir/clean:
 CMakeFiles/test_throughput_bottleneck.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_throughput_bottleneck.dir/build.make CMakeFiles/test_throughput_bottleneck.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_throughput_bottleneck.dir/build.make CMakeFiles/test_throughput_bottleneck.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100 "Built target test_throughput_bottleneck"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=91,92,93,94,95,96,97,98,99,100 "Built target test_throughput_bottleneck"
 .PHONY : CMakeFiles/test_throughput_bottleneck.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_throughput_bottleneck.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 17
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_throughput_bottleneck.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_throughput_bottleneck.dir/rule
@@ -221,12 +229,12 @@ CMakeFiles/test_throughput_bottleneck.dir/clean:
 CMakeFiles/test_rtt_deviation_diagnosis.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83 "Built target test_rtt_deviation_diagnosis"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=81,82,83,84,85,86,87,88,89,90 "Built target test_rtt_deviation_diagnosis"
 .PHONY : CMakeFiles/test_rtt_deviation_diagnosis.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/test_rtt_deviation_diagnosis.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 17
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_rtt_deviation_diagnosis.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
 .PHONY : CMakeFiles/test_rtt_deviation_diagnosis.dir/rule
@@ -239,6 +247,110 @@ test_rtt_deviation_diagnosis: CMakeFiles/test_rtt_deviation_diagnosis.dir/rule
 CMakeFiles/test_rtt_deviation_diagnosis.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_rtt_deviation_diagnosis.dir/build.make CMakeFiles/test_rtt_deviation_diagnosis.dir/clean
 .PHONY : CMakeFiles/test_rtt_deviation_diagnosis.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_allreduce_diagnosis.dir
+
+# All Build rule for target.
+CMakeFiles/test_allreduce_diagnosis.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_allreduce_diagnosis.dir/build.make CMakeFiles/test_allreduce_diagnosis.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_allreduce_diagnosis.dir/build.make CMakeFiles/test_allreduce_diagnosis.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=11,12,13,14,15,16,17,18,19,20 "Built target test_allreduce_diagnosis"
+.PHONY : CMakeFiles/test_allreduce_diagnosis.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_allreduce_diagnosis.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_allreduce_diagnosis.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_allreduce_diagnosis.dir/rule
+
+# Convenience name for target.
+test_allreduce_diagnosis: CMakeFiles/test_allreduce_diagnosis.dir/rule
+.PHONY : test_allreduce_diagnosis
+
+# clean rule for target.
+CMakeFiles/test_allreduce_diagnosis.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_allreduce_diagnosis.dir/build.make CMakeFiles/test_allreduce_diagnosis.dir/clean
+.PHONY : CMakeFiles/test_allreduce_diagnosis.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_link_bottleneck_diagnosis.dir
+
+# All Build rule for target.
+CMakeFiles/test_link_bottleneck_diagnosis.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_link_bottleneck_diagnosis.dir/build.make CMakeFiles/test_link_bottleneck_diagnosis.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_link_bottleneck_diagnosis.dir/build.make CMakeFiles/test_link_bottleneck_diagnosis.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=41,42,43,44,45,46,47,48,49,50 "Built target test_link_bottleneck_diagnosis"
+.PHONY : CMakeFiles/test_link_bottleneck_diagnosis.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_link_bottleneck_diagnosis.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_link_bottleneck_diagnosis.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_link_bottleneck_diagnosis.dir/rule
+
+# Convenience name for target.
+test_link_bottleneck_diagnosis: CMakeFiles/test_link_bottleneck_diagnosis.dir/rule
+.PHONY : test_link_bottleneck_diagnosis
+
+# clean rule for target.
+CMakeFiles/test_link_bottleneck_diagnosis.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_link_bottleneck_diagnosis.dir/build.make CMakeFiles/test_link_bottleneck_diagnosis.dir/clean
+.PHONY : CMakeFiles/test_link_bottleneck_diagnosis.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_packet_spraying_verify.dir
+
+# All Build rule for target.
+CMakeFiles/test_packet_spraying_verify.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying_verify.dir/build.make CMakeFiles/test_packet_spraying_verify.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying_verify.dir/build.make CMakeFiles/test_packet_spraying_verify.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=71,72,73,74,75,76,77,78,79,80 "Built target test_packet_spraying_verify"
+.PHONY : CMakeFiles/test_packet_spraying_verify.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_packet_spraying_verify.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_packet_spraying_verify.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_packet_spraying_verify.dir/rule
+
+# Convenience name for target.
+test_packet_spraying_verify: CMakeFiles/test_packet_spraying_verify.dir/rule
+.PHONY : test_packet_spraying_verify
+
+# clean rule for target.
+CMakeFiles/test_packet_spraying_verify.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_packet_spraying_verify.dir/build.make CMakeFiles/test_packet_spraying_verify.dir/clean
+.PHONY : CMakeFiles/test_packet_spraying_verify.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_gpu_18port_usage.dir
+
+# All Build rule for target.
+CMakeFiles/test_gpu_18port_usage.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_gpu_18port_usage.dir/build.make CMakeFiles/test_gpu_18port_usage.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_gpu_18port_usage.dir/build.make CMakeFiles/test_gpu_18port_usage.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles --progress-num=31,32,33,34,35,36,37,38,39,40 "Built target test_gpu_18port_usage"
+.PHONY : CMakeFiles/test_gpu_18port_usage.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_gpu_18port_usage.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_gpu_18port_usage.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /share/zhuyu-nfs/chiplet-network-sim/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_gpu_18port_usage.dir/rule
+
+# Convenience name for target.
+test_gpu_18port_usage: CMakeFiles/test_gpu_18port_usage.dir/rule
+.PHONY : test_gpu_18port_usage
+
+# clean rule for target.
+CMakeFiles/test_gpu_18port_usage.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_gpu_18port_usage.dir/build.make CMakeFiles/test_gpu_18port_usage.dir/clean
+.PHONY : CMakeFiles/test_gpu_18port_usage.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

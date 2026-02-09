@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -72,6 +73,21 @@ class System {
   uint64_t get_diag_injected_last_cycle() const { return diag_injected_last_cycle_; }
   void record_diag_injected_port(Node* node, int port);
   uint64_t get_diag_injected_port_count(Node* node) const;
+  // 链路瓶颈诊断：因「出链路本周期已被占用」导致无法发送时记录 (node, port)
+  void record_diag_link_blocked(Node* node, int port);
+  uint64_t get_diag_link_blocked_count(Node* node, int port) const;
+  // 包泼洒验证：记录到达目的 GPU 时来自哪个 Leaf (ingress)，用于看流量是否从多 Leaf 汇聚
+  void record_diag_ingress_leaf(NodeID dest, Node* ingress_node);
+  // 返回 (dest_global_rank, ingress_switch_id) -> 到达次数；dest_global_rank = group_id * num_gpus_per_group + node_id
+  const std::map<std::pair<int, int>, uint64_t>& get_diag_ingress_leaf_counts() const {
+    return diag_ingress_leaf_;
+  }
+  // GPU 18 口使用：记录到达 GPU 时使用的是该 GPU 的哪个入端口 (0..17)
+  void record_diag_gpu_port_usage(NodeID dest, Buffer* arrival_buffer);
+  // (dest_global_rank, gpu_port) -> 到达该 GPU 且从该 port 进入的包数
+  const std::map<std::pair<int, int>, uint64_t>& get_diag_gpu_port_usage() const {
+    return diag_gpu_port_usage_;
+  }
 
  protected:
   std::vector<Group*> groups_;
@@ -91,4 +107,10 @@ class System {
   mutable uint64_t diag_credit_returns_last_cycle_ = 0;  // 上一周期 credit 回报的 flit 数
   mutable uint64_t diag_injected_last_cycle_ = 0;     // 上一周期源端实际注入的 flit 数
   mutable std::unordered_map<Node*, std::vector<uint8_t>> diag_injected_ports_;
+  // 每 (node, port) 因链路忙而未能发送的次数，用于定位瓶颈链路
+  mutable std::unordered_map<Node*, std::vector<uint64_t>> diag_link_blocked_;
+  // (dest_global_rank, ingress_switch_id) -> 从该 Leaf 进入该 GPU 的包数，用于验证包泼洒
+  mutable std::map<std::pair<int, int>, uint64_t> diag_ingress_leaf_;
+  // (dest_global_rank, gpu_port_id) -> 到达该 GPU 时从该 port(0..17) 进入的包数，验证 18 口是否用满
+  mutable std::map<std::pair<int, int>, uint64_t> diag_gpu_port_usage_;
 };

@@ -56,4 +56,8 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/test_packet_spraying.dir/DependInfo.cmake"
   "CMakeFiles/test_throughput_bottleneck.dir/DependInfo.cmake"
   "CMakeFiles/test_rtt_deviation_diagnosis.dir/DependInfo.cmake"
+  "CMakeFiles/test_allreduce_diagnosis.dir/DependInfo.cmake"
+  "CMakeFiles/test_link_bottleneck_diagnosis.dir/DependInfo.cmake"
+  "CMakeFiles/test_packet_spraying_verify.dir/DependInfo.cmake"
+  "CMakeFiles/test_gpu_18port_usage.dir/DependInfo.cmake"
   )

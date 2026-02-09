@@ -1,15 +1,20 @@
+/**
+ * NVSwitch 拓扑：Leaf-Spine 结构，支持 NVL72/NVL256 风格无阻塞网络
+ * 参见 docs/NVL256无阻塞网络结构.md
+ * spine_non_blocking=true 时 num_spine_switches=max_gpu_ports，leaf-spine 无 oversubscription
+ */
 #include "nvswitch.h"
 #include "traffic_manager.h"
 #include <algorithm>
 #include <random>
 
-NVSwitchSpineGroup::NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num, int buffer_size,
-                                       Channel switch_switch_channel)
+NVSwitchSpineGroup::NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num,
+                                       int switch_buffer_size, Channel switch_switch_channel)
     : Group(), num_spine_switches_(num_spine_sw) {
   num_nodes_ = num_spine_sw;
   num_cores_ = 0;
   for (int i = 0; i < num_spine_sw; i++) {
-    nodes_.push_back(new Node(spine_radix, vc_num, buffer_size, switch_switch_channel));
+    nodes_.push_back(new Node(spine_radix, vc_num, switch_buffer_size, switch_switch_channel));
   }
 }
 
@@ -29,7 +34,7 @@ void NVSwitchSpineGroup::set_group(System* system, int group_id) {
 }
 
 NVSwitchGroup::NVSwitchGroup(int num_gpus, int num_switches, int gpu_nvlink_ports, int leaf_switch_radix,
-                             int vc_num, int buffer_size,
+                             int vc_num, int gpu_buffer_size, int switch_buffer_size,
                              Channel gpu_switch_channel, Channel switch_switch_channel,
                              const std::vector<int>& links_per_switch)
     : Group(), num_gpus_(num_gpus), num_switches_(num_switches), gpu_nvlink_ports_(gpu_nvlink_ports),
@@ -40,12 +45,12 @@ NVSwitchGroup::NVSwitchGroup(int num_gpus, int num_switches, int gpu_nvlink_port
 
   // Create GPU nodes: each GPU has gpu_nvlink_ports links to switches (packet spraying)
   for (int i = 0; i < num_gpus_; i++) {
-    nodes_.push_back(new Node(gpu_nvlink_ports_, vc_num, buffer_size, gpu_switch_channel));
+    nodes_.push_back(new Node(gpu_nvlink_ports_, vc_num, gpu_buffer_size, gpu_switch_channel));
   }
 
-  // Create Leaf NVSwitch nodes
+  // Create Leaf NVSwitch nodes（NVL256 等 Spine-Leaf 下 Switch 可配更大 buffer）
   for (int i = 0; i < num_switches_; i++) {
-    nodes_.push_back(new Node(leaf_switch_radix, vc_num, buffer_size, switch_switch_channel));
+    nodes_.push_back(new Node(leaf_switch_radix, vc_num, switch_buffer_size, switch_switch_channel));
   }
 }
 
@@ -83,12 +88,16 @@ NVSwitchSystem::NVSwitchSystem() {
   // Set base class num_groups_ for print_config()
   System::num_groups_ = num_groups_;
 
+  // GPU 与 Switch 可分别设 buffer：Switch 更大以匹配 NVL256 等两级无阻塞胖树
+  int gpu_buf = param->buffer_size;
+  int sw_buf = (param->switch_buffer_size > 0) ? param->switch_buffer_size : param->buffer_size;
+
   // Create groups (machine groups with GPUs + leaf switches)
   groups_.reserve(num_groups_ + (num_spine_switches_ > 0 ? 1 : 0));
   for (int group_id = 0; group_id < num_groups_; group_id++) {
     groups_.push_back(new NVSwitchGroup(num_gpus_per_group_, num_switches_per_group_,
                                        gpu_nvlink_ports_, leaf_switch_radix_,
-                                       param->vc_number, param->buffer_size,
+                                       param->vc_number, gpu_buf, sw_buf,
                                        gpu_switch_channel_, switch_switch_channel_,
                                        links_per_switch_));
     groups_[group_id]->set_group(this, group_id);
@@ -96,9 +105,10 @@ NVSwitchSystem::NVSwitchSystem() {
 
   // Create spine group (for inter-group via spine)
   if (num_spine_switches_ > 0) {
-    int spine_radix = num_groups_ * num_switches_per_group_;
+    int spine_radix =
+        num_groups_ * num_switches_per_group_ * spine_leaf_links_per_pair_;
     groups_.push_back(new NVSwitchSpineGroup(num_spine_switches_, spine_radix,
-                                            param->vc_number, param->buffer_size,
+                                            param->vc_number, sw_buf,
                                             switch_switch_channel_));
     groups_[num_groups_]->set_group(this, num_groups_);
     num_nodes_ += num_spine_switches_;
@@ -131,6 +141,8 @@ void NVSwitchSystem::read_config() {
   num_groups_ = param->params_ptree.get<int>("Network.num_groups", 1);
   gpu_nvlink_ports_ = param->params_ptree.get<int>("Network.gpu_nvlink_ports", 18);
   num_spine_switches_ = param->params_ptree.get<int>("Network.num_spine_switches", 0);
+  spine_leaf_links_per_pair_ =
+      param->params_ptree.get<int>("Network.spine_leaf_links_per_pair", 1);
 
   switches_fully_connected_ = param->params_ptree.get<bool>("Network.switches_fully_connected", true);
   inter_group_sw_connect_ = param->params_ptree.get<bool>("Network.inter_group_sw_connect", false);
@@ -166,7 +178,7 @@ void NVSwitchSystem::read_config() {
     printf("Spine non-blocking: num_spine_switches = %d (max_gpu_ports)\n",
            num_spine_switches_);
   }
-  int spine_ports = num_spine_switches_;
+  int spine_ports = num_spine_switches_ * spine_leaf_links_per_pair_;
   int inter_group_ports = 0;
   if (num_spine_switches_ == 0 && inter_group_sw_connect_ && num_groups_ > 1) {
     // Port indices inter_offset + group2_id for group2_id=1..num_groups_-1,
@@ -176,9 +188,10 @@ void NVSwitchSystem::read_config() {
   leaf_switch_radix_ = max_gpu_ports + intra_sw_ports + spine_ports + inter_group_ports;
 
   printf("NVSwitch Topology: %d groups, %d GPUs/group, %d Leaf switches/group, "
-         "gpu_nvlink_ports=%d, leaf_switch_radix=%d, spine=%d\n",
+         "gpu_nvlink_ports=%d, leaf_switch_radix=%d, spine=%d, spine_leaf_links_per_pair=%d\n",
          num_groups_, num_gpus_per_group_, num_switches_per_group_,
-         gpu_nvlink_ports_, leaf_switch_radix_, num_spine_switches_);
+         gpu_nvlink_ports_, leaf_switch_radix_, num_spine_switches_,
+         spine_leaf_links_per_pair_);
 }
 
 void NVSwitchSystem::print_config() {
@@ -190,11 +203,14 @@ void NVSwitchSystem::print_config() {
   std::cout << "  gpu_nvlink_ports: " << gpu_nvlink_ports_ << std::endl;
   std::cout << "  leaf_switch_radix: " << leaf_switch_radix_ << std::endl;
   std::cout << "  num_spine_switches: " << num_spine_switches_ << std::endl;
+  std::cout << "  spine_leaf_links_per_pair: " << spine_leaf_links_per_pair_ << std::endl;
   std::cout << "  switches_fully_connected: " << switches_fully_connected_ << std::endl;
   std::cout << "  inter_group_sw_connect: " << inter_group_sw_connect_ << std::endl;
   std::cout << "  spine_non_blocking: "
             << param->params_ptree.get<bool>("Network.spine_non_blocking", false)
             << std::endl;
+  if (param->switch_buffer_size > 0)
+    std::cout << "  switch_buffer_size: " << param->switch_buffer_size << std::endl;
   std::cout << "  routing_algorithm: " << algorithm_ << std::endl;
 }
 
@@ -284,10 +300,14 @@ void NVSwitchSystem::connect_leaf_to_spine() {
       for (int sw_id = 0; sw_id < num_switches_per_group_; sw_id++) {
         Node* leaf = group->get_nvswitch(sw_id);
         int gpu_ports_end = num_gpus_per_group_ * links_per_switch_[sw_id];
-        int leaf_spine_port = gpu_ports_end + intra_sw_ports + spine_id;
-        int spine_port = group_id * num_switches_per_group_ + sw_id;
-        if (leaf_spine_port < leaf->radix_ && spine_port < spine->radix_) {
-          Port::connect_port(leaf->ports_[leaf_spine_port], spine->ports_[spine_port]);
+        int leaf_spine_base = gpu_ports_end + intra_sw_ports + spine_id * spine_leaf_links_per_pair_;
+        int spine_port_base = (group_id * num_switches_per_group_ + sw_id) * spine_leaf_links_per_pair_;
+        for (int link_idx = 0; link_idx < spine_leaf_links_per_pair_; link_idx++) {
+          int leaf_spine_port = leaf_spine_base + link_idx;
+          int spine_port = spine_port_base + link_idx;
+          if (leaf_spine_port < leaf->radix_ && spine_port < spine->radix_) {
+            Port::connect_port(leaf->ports_[leaf_spine_port], spine->ports_[spine_port]);
+          }
         }
       }
     }
@@ -316,15 +336,18 @@ void NVSwitchSystem::direct_routing(Packet& s) const {
     gpu_port_base[sw] = gpu_port_base[sw - 1] + links_per_switch_[sw - 1];
   }
 
-  // If current node is a spine switch: route down to leaf in dest group
+  // If current node is a spine switch: route down to *all* leafs in dest group (包泼洒，使流量可从多 leaf 汇聚到同一 GPU)
   if (num_spine_switches_ > 0 && cur_group_id == num_groups_) {
-    int dest_sw_id = dest_node_id % num_switches_per_group_;
-    int spine_port = dest_group_id * num_switches_per_group_ + dest_sw_id;
-    if (spine_port < cur_node->radix_) {
-      Buffer* next_buffer = cur_node->link_buffers_[spine_port];
-      if (next_buffer != nullptr) {
-        for (int i = 0; i < param->vc_number; i++) {
-          s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+    for (int dest_sw_id = 0; dest_sw_id < num_switches_per_group_; dest_sw_id++) {
+      int spine_port_base = (dest_group_id * num_switches_per_group_ + dest_sw_id) * spine_leaf_links_per_pair_;
+      for (int link_idx = 0; link_idx < spine_leaf_links_per_pair_; link_idx++) {
+        int spine_port = spine_port_base + link_idx;
+        if (spine_port >= cur_node->radix_) break;
+        Buffer* next_buffer = cur_node->link_buffers_[spine_port];
+        if (next_buffer != nullptr) {
+          for (int i = 0; i < param->vc_number; i++) {
+            s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          }
         }
       }
     }
@@ -371,6 +394,7 @@ void NVSwitchSystem::direct_routing(Packet& s) const {
     int intra_sw_offset = gpu_ports_end;
 
     if (cur_group_id == dest_group_id) {
+      // 直连：本 Leaf 到目的 GPU 的端口
       for (int k = 0; k < n_links; k++) {
         int port_id = dest_node_id * n_links + k;
         if (port_id >= cur_node->radix_) break;
@@ -379,24 +403,36 @@ void NVSwitchSystem::direct_routing(Packet& s) const {
           for (int i = 0; i < param->vc_number; i++) {
             s.candidate_channels_.push_back(VCInfo(next_buffer, i));
           }
-          break;
+        }
+      }
+      // 包泼洒：经其他 Leaf 再到目的 GPU，使流量可从多 Leaf 汇聚到同一 node
+      for (int other_sw = 0; other_sw < num_switches_per_group_; other_sw++) {
+        if (other_sw == switch_id) continue;
+        int port_id = intra_sw_offset + (other_sw < switch_id ? other_sw : other_sw - 1);
+        if (port_id >= cur_node->radix_) break;
+        Buffer* next_buffer = cur_node->link_buffers_[port_id];
+        if (next_buffer != nullptr) {
+          for (int i = 0; i < param->vc_number; i++) {
+            s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          }
         }
       }
     }
     // Cross-group: via spine uplinks or direct leaf-leaf
     if (s.candidate_channels_.empty() && cur_group_id != dest_group_id) {
       if (num_spine_switches_ > 0) {
-        // Use spine uplinks (Leaf-Spine topology)
+        // Use spine uplinks (Leaf-Spine): add all links to all spines for load spreading
         int spine_offset = intra_sw_offset + num_switches_per_group_ - 1;
         for (int spine_id = 0; spine_id < num_spine_switches_; spine_id++) {
-          int port_id = spine_offset + spine_id;
-          if (port_id >= cur_node->radix_) break;
-          Buffer* next_buffer = cur_node->link_buffers_[port_id];
-          if (next_buffer != nullptr) {
-            for (int i = 0; i < param->vc_number; i++) {
-              s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          for (int link_idx = 0; link_idx < spine_leaf_links_per_pair_; link_idx++) {
+            int port_id = spine_offset + spine_id * spine_leaf_links_per_pair_ + link_idx;
+            if (port_id >= cur_node->radix_) break;
+            Buffer* next_buffer = cur_node->link_buffers_[port_id];
+            if (next_buffer != nullptr) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
             }
-            break;  // direct: pick one spine
           }
         }
       } else if (inter_group_sw_connect_) {
@@ -455,15 +491,18 @@ void NVSwitchSystem::min_routing(Packet& s) const {
     gpu_port_base[sw] = gpu_port_base[sw - 1] + links_per_switch_[sw - 1];
   }
 
-  // If current node is a spine switch: route down to leaf in dest group
+  // If current node is a spine switch: route down to *all* leafs in dest group (包泼洒)
   if (num_spine_switches_ > 0 && cur_group_id == num_groups_) {
-    int dest_sw_id = dest_node_id % num_switches_per_group_;
-    int spine_port = dest_group_id * num_switches_per_group_ + dest_sw_id;
-    if (spine_port < cur_node->radix_) {
-      Buffer* next_buffer = cur_node->link_buffers_[spine_port];
-      if (next_buffer != nullptr) {
-        for (int i = 0; i < param->vc_number; i++) {
-          s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+    for (int dest_sw_id = 0; dest_sw_id < num_switches_per_group_; dest_sw_id++) {
+      int spine_port_base = (dest_group_id * num_switches_per_group_ + dest_sw_id) * spine_leaf_links_per_pair_;
+      for (int link_idx = 0; link_idx < spine_leaf_links_per_pair_; link_idx++) {
+        int spine_port = spine_port_base + link_idx;
+        if (spine_port >= cur_node->radix_) break;
+        Buffer* next_buffer = cur_node->link_buffers_[spine_port];
+        if (next_buffer != nullptr) {
+          for (int i = 0; i < param->vc_number; i++) {
+            s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          }
         }
       }
     }
@@ -493,8 +532,21 @@ void NVSwitchSystem::min_routing(Packet& s) const {
     int intra_sw_offset = gpu_ports_end;
 
     if (cur_group_id == dest_group_id) {
+      // 直连：本 Leaf 到目的 GPU 的所有端口
       for (int k = 0; k < n_links; k++) {
         int port_id = dest_node_id * n_links + k;
+        if (port_id >= cur_node->radix_) break;
+        Buffer* next_buffer = cur_node->link_buffers_[port_id];
+        if (next_buffer != nullptr) {
+          for (int i = 0; i < param->vc_number; i++) {
+            s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          }
+        }
+      }
+      // 包泼洒：经其他 Leaf 再到目的 GPU
+      for (int other_sw = 0; other_sw < num_switches_per_group_; other_sw++) {
+        if (other_sw == switch_id) continue;
+        int port_id = intra_sw_offset + (other_sw < switch_id ? other_sw : other_sw - 1);
         if (port_id >= cur_node->radix_) break;
         Buffer* next_buffer = cur_node->link_buffers_[port_id];
         if (next_buffer != nullptr) {
@@ -509,12 +561,14 @@ void NVSwitchSystem::min_routing(Packet& s) const {
       if (num_spine_switches_ > 0) {
         int spine_offset = intra_sw_offset + num_switches_per_group_ - 1;
         for (int spine_id = 0; spine_id < num_spine_switches_; spine_id++) {
-          int port_id = spine_offset + spine_id;
-          if (port_id >= cur_node->radix_) break;
-          Buffer* next_buffer = cur_node->link_buffers_[port_id];
-          if (next_buffer != nullptr) {
-            for (int i = 0; i < param->vc_number; i++) {
-              s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+          for (int link_idx = 0; link_idx < spine_leaf_links_per_pair_; link_idx++) {
+            int port_id = spine_offset + spine_id * spine_leaf_links_per_pair_ + link_idx;
+            if (port_id >= cur_node->radix_) break;
+            Buffer* next_buffer = cur_node->link_buffers_[port_id];
+            if (next_buffer != nullptr) {
+              for (int i = 0; i < param->vc_number; i++) {
+                s.candidate_channels_.push_back(VCInfo(next_buffer, i));
+              }
             }
           }
         }

@@ -41,7 +41,8 @@ struct Parameters {
   boost::property_tree::ptree params_ptree;
   // Network parameters
   std::string topology;
-  int buffer_size;  // flits
+  int buffer_size;         // flits (GPU/端点)
+  int switch_buffer_size; // flits，Switch 专用；<=0 表示与 buffer_size 相同（NVL256 等 Spine-Leaf 下 Switch 可配更大）
   int vc_number;
   std::string router_stages;
   std::string flow_control;  // "buffer" = 接收端预留, "credit" = 发送端 credit (NVSwitch 风格)
@@ -78,6 +79,8 @@ struct Parameters {
     std::cout << std::setw(20) << "Flow Control: " << flow_control << std::endl;
     std::cout << std::setw(20) << "Credit Return Delay: " << credit_return_delay << std::endl;
     std::cout << std::setw(20) << "Buffer Size: " << buffer_size << std::endl;
+    if (switch_buffer_size > 0)
+      std::cout << std::setw(20) << "Switch Buffer Size: " << switch_buffer_size << std::endl;
     std::cout << std::setw(20) << "VC number: " << vc_number << std::endl;
     std::cout << std::setw(20) << "Processing Time: " << processing_time << std::endl;
     std::cout << std::setw(20) << "Traffic: " << traffic << std::endl;

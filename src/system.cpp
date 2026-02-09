@@ -82,6 +82,9 @@ void System::reset_diagnostics() {
   diag_credit_returns_last_cycle_ = 0;
   diag_injected_last_cycle_ = 0;
   diag_injected_ports_.clear();
+  diag_link_blocked_.clear();
+  diag_ingress_leaf_.clear();
+  diag_gpu_port_usage_.clear();
 }
 
 void System::process_pending_credits(uint64_t current_cycle) {
@@ -125,6 +128,48 @@ uint64_t System::get_diag_injected_port_count(Node* node) const {
   uint64_t count = 0;
   for (uint8_t v : it->second) count += v ? 1 : 0;
   return count;
+}
+
+void System::record_diag_link_blocked(Node* node, int port) {
+  if (!diagnostics_enabled_ || node == nullptr || port < 0) return;
+  auto& vec = diag_link_blocked_[node];
+  if (vec.size() < static_cast<size_t>(node->radix_)) {
+    vec.resize(node->radix_, 0);
+  }
+  if (port < static_cast<int>(vec.size())) vec[port]++;
+}
+
+uint64_t System::get_diag_link_blocked_count(Node* node, int port) const {
+  if (node == nullptr || port < 0 || port >= node->radix_) return 0;
+  auto it = diag_link_blocked_.find(node);
+  if (it == diag_link_blocked_.end()) return 0;
+  const auto& vec = it->second;
+  if (port >= static_cast<int>(vec.size())) return 0;
+  return vec[port];
+}
+
+void System::record_diag_ingress_leaf(NodeID dest, Node* ingress_node) {
+  if (!diagnostics_enabled_ || ingress_node == nullptr || groups_.empty()) return;
+  int num_gpus_per_group = groups_[0]->num_cores_;
+  if (dest.group_id != ingress_node->id_.group_id) return;
+  if (ingress_node->id_.node_id < num_gpus_per_group) return;  // 上游是 GPU 则不记
+  int ingress_switch_id = ingress_node->id_.node_id - num_gpus_per_group;
+  int dest_global = dest.group_id * num_gpus_per_group + dest.node_id;
+  diag_ingress_leaf_[{dest_global, ingress_switch_id}]++;
+}
+
+void System::record_diag_gpu_port_usage(NodeID dest, Buffer* arrival_buffer) {
+  if (!diagnostics_enabled_ || arrival_buffer == nullptr || groups_.empty()) return;
+  Node* dest_node = arrival_buffer->node_;
+  if (dest_node == nullptr) return;
+  int num_gpus_per_group = groups_[0]->num_cores_;
+  int dest_global = dest.group_id * num_gpus_per_group + dest.node_id;
+  for (int p = 0; p < dest_node->radix_; p++) {
+    if (dest_node->in_buffers_[p] == arrival_buffer) {
+      diag_gpu_port_usage_[{dest_global, p}]++;
+      return;
+    }
+  }
 }
 
 void System::init_flow_control() {
@@ -232,8 +277,8 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
     return;
   }
 
-  // 3. 优先级策略（更均衡的端口使用）
-  // credit 模式：按「当前可用 credit」降序；同 credit 时按 port_usage 升序；再同则按 round-robin 轮转端口，使包泼洒在多线程下也能铺满 18 口
+  // 3. 优先级策略：负载均衡优先（per-packet 选最少使用的端口）
+  // credit 模式：按 port_usage 升序（最少使用优先），使 18 口等负载；同 usage 时按 credit 降序，再 round-robin
   // 非 credit 模式：按 port_usage 升序（最少使用优先）
   std::vector<std::pair<Buffer*, int>> ordered_ports;
   if (credit_mode) {
@@ -260,8 +305,8 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
     const uint64_t rr = sender->next_vc_alloc_round_robin();
     std::sort(with_credit.begin(), with_credit.end(),
               [nports, rr](const PortCredit& a, const PortCredit& b) {
+                if (a.usage != b.usage) return a.usage < b.usage;   // 负载均衡：优先最少使用的端口
                 if (a.max_credit != b.max_credit) return a.max_credit > b.max_credit;
-                if (a.usage != b.usage) return a.usage < b.usage;
                 return ((a.port + rr) % nports) < ((b.port + rr) % nports);
               });
     for (const auto& x : with_credit)
@@ -346,13 +391,23 @@ void System::switch_allocate(Packet& p) {
         int port = sender->get_port_to_buffer(p.next_vc_.buffer);
         record_diag_injected_port(sender, port);
       }
+    } else if (diagnostics_enabled_) {
+      Node* sender = get_node(p.source_);
+      int port = sender->get_port_to_buffer(p.next_vc_.buffer);
+      if (port >= 0) record_diag_link_blocked(sender, port);
     }
   } else if (current_vc.head_packet() == &p) {
     if (current_vc.buffer->allocate_sw_link()) {     // try to allocate the link to the switch
       if (p.next_vc_.buffer->allocate_in_link(p)) {  // wait for link to the next buffer
         p.switch_allocated_ = true;
-      } else
+      } else {
         current_vc.buffer->release_sw_link();
+        if (diagnostics_enabled_) {
+          Node* sender = get_node(current_vc.id);
+          int port = sender->get_port_to_buffer(p.next_vc_.buffer);
+          if (port >= 0) record_diag_link_blocked(sender, port);
+        }
+      }
     }
   }
 }
@@ -460,6 +515,11 @@ void System::update(Packet& p) {
   // If the last flit reach destination, delete message
   if (p.link_timer_ == 0 && p.tail_trace().id == p.destination_) {
     VCInfo dest_vc = p.tail_trace();
+    if (diagnostics_enabled_) {
+      if (dest_vc.buffer->upstream_node_ != nullptr)
+        record_diag_ingress_leaf(p.destination_, dest_vc.buffer->upstream_node_);
+      record_diag_gpu_port_usage(p.destination_, dest_vc.buffer);
+    }
     dest_vc.buffer->release_buffer(dest_vc.vcb, p.length_);
     p.finished_ = true;
     TM->message_arrived_++;

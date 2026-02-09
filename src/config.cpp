@@ -7,6 +7,7 @@ Parameters::Parameters(const std::string &config_file) {
 
   topology = params_ptree.get<std::string>("Network.topology", "SingleChipMesh");
   buffer_size = params_ptree.get<int>("Network.buffer_size", 64);
+  switch_buffer_size = params_ptree.get<int>("Network.switch_buffer_size", 0);  // 0 = 与 buffer_size 相同
   vc_number = params_ptree.get<int>("Network.vc_number", 3);
   router_stages = params_ptree.get<std::string>("Network.router_stages", "OneStage");
   flow_control = params_ptree.get<std::string>("Network.flow_control", "buffer");

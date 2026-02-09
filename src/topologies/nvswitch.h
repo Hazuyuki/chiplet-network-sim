@@ -4,7 +4,7 @@
 // NVSwitchSpineGroup holds spine switches for inter-group connectivity (Leaf-Spine topology)
 class NVSwitchSpineGroup : public Group {
  public:
-  NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num, int buffer_size,
+  NVSwitchSpineGroup(int num_spine_sw, int spine_radix, int vc_num, int switch_buffer_size,
                      Channel switch_switch_channel);
   ~NVSwitchSpineGroup();
   void set_group(System* system, int group_id) override;
@@ -17,7 +17,7 @@ class NVSwitchSpineGroup : public Group {
 class NVSwitchGroup : public Group {
  public:
   NVSwitchGroup(int num_gpus, int num_switches, int gpu_nvlink_ports, int leaf_switch_radix,
-                int vc_num, int buffer_size,
+                int vc_num, int gpu_buffer_size, int switch_buffer_size,
                 Channel gpu_switch_channel, Channel switch_switch_channel,
                 const std::vector<int>& links_per_switch);
   ~NVSwitchGroup();
@@ -76,6 +76,7 @@ class NVSwitchSystem : public System {
   int gpu_nvlink_ports_;         // NVLink ports per GPU
   int leaf_switch_radix_;        // Radix of each Leaf NVSwitch
   int num_spine_switches_;       // 0 = no spine; >0 = Leaf-Spine inter-node
+  int spine_leaf_links_per_pair_; // NVL256 式：每对 (leaf, spine) 的链路数，>1 为无阻塞多链路
   bool switches_fully_connected_; // Whether switches are fully connected
   bool inter_group_sw_connect_;   // Whether switches connect between groups
   std::vector<int> links_per_switch_;  // links_per_switch[sw] = GPU ports to this switch

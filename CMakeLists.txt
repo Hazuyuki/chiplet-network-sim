@@ -33,6 +33,10 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_credit_flow_control.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_throughput_bottleneck.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_rtt_deviation_diagnosis.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_allreduce_diagnosis.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_link_bottleneck_diagnosis.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying_verify.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_gpu_18port_usage.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -114,6 +118,58 @@ add_executable(test_rtt_deviation_diagnosis
 target_include_directories(test_rtt_deviation_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
   target_link_libraries(test_rtt_deviation_diagnosis ${Boost_LIBRARIES})
+endif()
+
+# All-Reduce 饱和点诊断
+add_executable(test_allreduce_diagnosis
+  src/topologies/test_allreduce_diagnosis.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_allreduce_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_allreduce_diagnosis ${Boost_LIBRARIES})
+endif()
+
+# 链路瓶颈诊断：按链路类型统计「出链路忙」导致的阻塞次数
+add_executable(test_link_bottleneck_diagnosis
+  src/topologies/test_link_bottleneck_diagnosis.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_link_bottleneck_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_link_bottleneck_diagnosis ${Boost_LIBRARIES})
+endif()
+
+# 包泼洒验证：统计到达每个 GPU 的包来自哪个 Leaf，验证多 Leaf 汇聚是否生效
+add_executable(test_packet_spraying_verify
+  src/topologies/test_packet_spraying_verify.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_packet_spraying_verify PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_packet_spraying_verify ${Boost_LIBRARIES})
+endif()
+
+# GPU 18 口使用实验：到达 GPU 的包从哪个 port(0..17) 进入，验证 18 口是否用满
+add_executable(test_gpu_18port_usage
+  src/topologies/test_gpu_18port_usage.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_gpu_18port_usage PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_gpu_18port_usage ${Boost_LIBRARIES})
 endif()
 
 # Add test executable for NVSwitch topology (full test suite, optional)
