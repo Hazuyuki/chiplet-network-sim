@@ -62,17 +62,18 @@ class NVSwitchSystem : public System {
   }
   inline NVSwitchSpineGroup* get_spine_group() const {
     return num_spine_switches_ > 0
-               ? static_cast<NVSwitchSpineGroup*>(groups_[num_groups_])
+               ? static_cast<NVSwitchSpineGroup*>(groups_[num_servers_per_super_node_])
                : nullptr;
   }
   void connect_leaf_to_spine();
 
   std::string algorithm_;
 
-  // Configuration parameters
-  int num_gpus_per_group_;      // Number of GPUs per group
-  int num_switches_per_group_;   // Number of NVSwitches per group
-  int num_groups_;               // Number of groups (e.g., baseboards)
+  // Super Node configuration parameters
+  // Super Node = 多个 Server，每个 Server = 多个 GPU + 交换机
+  int num_gpus_per_server_;      // Number of GPUs per server (原 num_gpus_per_group)
+  int num_switches_per_server_;   // Number of NVSwitches per server (原 num_switches_per_group)
+  int num_servers_per_super_node_; // Number of servers per super node (原 num_groups)
   int gpu_nvlink_ports_;         // NVLink ports per GPU
   int leaf_switch_radix_;        // Radix of each Leaf NVSwitch
   int num_spine_switches_;       // 0 = no spine; >0 = Leaf-Spine inter-node

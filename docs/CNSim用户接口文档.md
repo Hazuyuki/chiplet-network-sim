@@ -27,12 +27,26 @@ CNSim 使用 INI 格式的配置文件，文件结构如下：
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `topology` | string | - | 拓扑类型：`NVSwitch`、`SingleChipMesh`、`DragonflySW`、`DragonflyChiplet`、`FatTree`、`HammingMesh`、`RailX` |
-| `num_gpus_per_group` | int | 8 | 每个 GPU 组的 GPU 数量（NVSwitch 拓扑） |
-| `num_switches_per_group` | int | 4 | 每个 GPU 组的交换机数量（NVSwitch 拓扑） |
-| `num_groups` | int | 1 | GPU 组数量 |
+
+### Super Node 架构参数 (NVSwitch 拓扑)
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `num_gpus_per_server` | int | 8 | 每个 Server 的 GPU 数量 |
+| `num_switches_per_server` | int | 4 | 每个 Server 的交换机数量 |
+| `num_servers_per_super_node` | int | 1 | 构成超节点的 Server 数量 |
 | `gpu_nvlink_ports` | int | 18 | 每个 GPU 的 NVLink 端口数 |
 | `switches_fully_connected` | bool | true | 交换机是否全互联 |
 | `spine_non_blocking` | bool | true | Spine 层是否非阻塞 |
+| `num_spine_switches` | int | 0 | Spine 交换机数量，>0 表示启用 Leaf-Spine 两级拓扑 |
+| `spine_leaf_links_per_pair` | int | 1 | 每对 (Leaf, Spine) 之间的链路数，>1 为无阻塞多链路 |
+
+> **兼容旧参数名**：代码兼容旧参数名 (`num_gpus_per_group`, `num_switches_per_group`, `num_groups`)，但推荐使用新参数名。
+
+### 通用网络参数
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
 | `routing_algorithm` | string | min | 路由算法：`min`（最小路径）、`valiant` |
 | `gpu_switch_latency` | int | 1 | GPU 到交换机链路延迟（cycles） |
 | `switch_switch_latency` | int | 1 | 交换机间链路延迟（cycles） |
@@ -100,9 +114,9 @@ CNSim 使用 INI 格式的配置文件，文件结构如下：
 ```ini
 [Network]
 topology = NVSwitch
-num_gpus_per_group = 8
-num_switches_per_group = 4
-num_groups = 1
+num_gpus_per_server = 8
+num_switches_per_server = 4
+num_servers_per_super_node = 1
 gpu_nvlink_ports = 18
 switches_fully_connected = true
 spine_non_blocking = true
@@ -140,9 +154,9 @@ log_file = output/nvswitch_allreduce.log
 ```ini
 [Network]
 topology = NVSwitch
-num_gpus_per_group = 8
-num_switches_per_group = 4
-num_groups = 1
+num_gpus_per_server = 8
+num_switches_per_server = 4
+num_servers_per_super_node = 1
 gpu_nvlink_ports = 18
 switches_fully_connected = true
 routing_algorithm = min
@@ -187,7 +201,50 @@ output_file = output/single_flow.csv
 - **增大 `issue_width`**：每次发射更多包减少仿真周期
 - **减小 `simulation_time`**：减少仿真周期数
 
-## 九、输出格式
+## 九、Super Node 架构说明
+
+CNSim 采用 **Super Node（超节点）** 架构来描述大规模 GPU 互连网络：
+
+```
+Super Node (超节点)
+├── Server 0: 8 GPUs + 4 NVSwitches
+├── Server 1: 8 GPUs + 4 NVSwitches
+├── ...
+└── Server M: 8 GPUs + 4 NVSwitches
+```
+
+### 参数关系
+
+| 新参数名 | 旧参数名 | 说明 |
+|---------|---------|------|
+| `num_gpus_per_server` | `num_gpus_per_group` | 每个 Server 的 GPU 数量 |
+| `num_switches_per_server` | `num_switches_per_group` | 每个 Server 的交换机数量 |
+| `num_servers_per_super_node` | `num_groups` | 构成超节点的 Server 数量 |
+
+### 计算公式
+
+- **总 GPU 数** = `num_gpus_per_server × num_servers_per_super_node`
+- **总节点数** = `num_servers_per_super_node × (num_gpus_per_server + num_switches_per_server)`
+
+### 示例
+
+- 8 GPU 单节点：`num_gpus_per_server=8, num_servers_per_super_node=1`
+- 256 GPU 超节点 (32 Server)：`num_gpus_per_server=8, num_servers_per_super_node=32`
+
+### 配置示例：256 GPU 超节点
+
+```ini
+[Network]
+topology = NVSwitch
+num_gpus_per_server = 8
+num_switches_per_server = 4
+num_servers_per_super_node = 32
+gpu_nvlink_ports = 18
+switches_fully_connected = true
+...
+```
+
+## 十、输出格式
 
 仿真结果输出为 CSV 格式，包含以下列：
 
@@ -199,7 +256,7 @@ output_file = output/single_flow.csv
 | Completed Packets | 完成的包数量 |
 | Timeout Packets | 超时包数量 |
 
-## 十、运行方法
+## 十一、运行方法
 
 ```bash
 cd build

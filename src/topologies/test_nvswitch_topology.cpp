@@ -35,23 +35,23 @@ static void test_topology(const std::string& config_path) {
   // 初始化流控（设置 upstream、credit）
   system->init_flow_control();
 
-  const int num_gpus = system->num_gpus_per_group_;
-  const int num_switches = system->num_switches_per_group_;
-  const int num_groups = system->num_groups_;
+  const int num_gpus = system->num_gpus_per_server_;
+  const int num_switches = system->num_switches_per_server_;
+  const int num_servers = system->num_servers_per_super_node_;
 
   std::cout << "\n--- 1. 基本参数 ---" << std::endl;
-  std::cout << "  groups=" << num_groups
-            << " GPUs/group=" << num_gpus
-            << " switches/group=" << num_switches
+  std::cout << "  servers=" << num_servers
+            << " GPUs/server=" << num_gpus
+            << " switches/server=" << num_switches
             << " num_nodes=" << system->num_nodes_
             << " num_cores=" << system->num_cores_ << std::endl;
 
-  assert(system->num_nodes_ == num_groups * (num_gpus + num_switches));
-  assert(system->num_cores_ == num_groups * num_gpus);
+  assert(system->num_nodes_ == num_servers * (num_gpus + num_switches));
+  assert(system->num_cores_ == num_servers * num_gpus);
   std::cout << "  ✓ 节点数/核心数正确" << std::endl;
 
-  for (int gid = 0; gid < num_groups; gid++) {
-    NVSwitchGroup* group = system->get_group(gid);
+  for (int sid = 0; sid < num_servers; sid++) {
+    NVSwitchGroup* group = system->get_group(sid);
     assert(group != nullptr);
     assert(group->num_gpus_ == num_gpus);
     assert(group->num_switches_ == num_switches);
@@ -114,7 +114,7 @@ static void test_topology(const std::string& config_path) {
 
   std::cout << "\n--- 4. 流控初始化 (upstream) ---" << std::endl;
 
-  for (int gid = 0; gid < num_groups; gid++) {
+  for (int sid = 0; sid < num_servers; sid++) {
     NVSwitchGroup* group = system->get_group(gid);
     for (int i = 0; i < group->num_nodes_; i++) {
       Node* node = group->get_node(i);

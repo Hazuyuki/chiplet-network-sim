@@ -23,7 +23,7 @@ Parameters* create_test_params() {
 topology = NVSwitch
 num_gpus_per_group = 4
 num_switches_per_group = 3
-num_groups = 1
+num_servers_per_super_node_ = 1
 gpu_nvlink_ports = 18
 switches_fully_connected = true
 inter_group_sw_connect = false
@@ -72,9 +72,9 @@ void test_topology_construction() {
   NVSwitchSystem* system = new NVSwitchSystem();
   
   // 验证基本参数
-  assert(system->num_gpus_per_group_ == 4);
-  assert(system->num_switches_per_group_ == 3);
-  assert(system->num_groups_ == 1);
+  assert(system->num_gpus_per_server_ == 4);
+  assert(system->num_switches_per_server_ == 3);
+  assert(system->num_servers_per_super_node__ == 1);
   assert(system->gpu_nvlink_ports_ == 18);
   assert(system->num_cores_ == 4);  // 只有GPU是cores
   assert(system->num_nodes_ == 7);   // 4 GPUs + 3 Switches
@@ -284,12 +284,12 @@ void test_multi_group_topology() {
   std::cout << "\n=== 测试6: 多组拓扑 ===" << std::endl;
   
   Parameters* test_param = create_test_params();
-  test_param->params_ptree.put("Network.num_groups", 2);
+  test_param->params_ptree.put("Network.num_servers_per_super_node_", 2);
   param = test_param;
   
   NVSwitchSystem* system = new NVSwitchSystem();
   
-  assert(system->num_groups_ == 2);
+  assert(system->num_servers_per_super_node__ == 2);
   assert(system->num_cores_ == 8);  // 2组 * 4 GPUs
   assert(system->num_nodes_ == 14);  // 2组 * (4 GPUs + 3 Switches)
   
@@ -391,8 +391,8 @@ void test_edge_cases() {
   
   NVSwitchSystem* system = new NVSwitchSystem();
   
-  assert(system->num_gpus_per_group_ == 2);
-  assert(system->num_switches_per_group_ == 1);
+  assert(system->num_gpus_per_server_ == 2);
+  assert(system->num_switches_per_server_ == 1);
   assert(system->num_nodes_ == 3);  // 2 GPUs + 1 Switch
   
   std::cout << "✓ 最小配置正常工作" << std::endl;

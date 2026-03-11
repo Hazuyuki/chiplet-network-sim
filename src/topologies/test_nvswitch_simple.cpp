@@ -65,13 +65,13 @@ output_file = test_output.csv
   NVSwitchSystem* system = new NVSwitchSystem();
   
   // 基本验证
-  std::cout << "GPU数量: " << system->num_gpus_per_group_ << std::endl;
-  std::cout << "Switch数量: " << system->num_switches_per_group_ << std::endl;
+  std::cout << "GPU数量: " << system->num_gpus_per_server_ << std::endl;
+  std::cout << "Switch数量: " << system->num_switches_per_server_ << std::endl;
   std::cout << "总节点数: " << system->num_nodes_ << std::endl;
   std::cout << "总核心数: " << system->num_cores_ << std::endl;
   
-  assert(system->num_gpus_per_group_ == 4);
-  assert(system->num_switches_per_group_ == 3);
+  assert(system->num_gpus_per_server_ == 4);
+  assert(system->num_switches_per_server_ == 3);
   assert(system->num_nodes_ == 7);
   assert(system->num_cores_ == 4);
   
