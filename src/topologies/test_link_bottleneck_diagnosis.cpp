@@ -69,8 +69,8 @@ static void aggregate_link_blocked_by_type(NVSwitchSystem* sys,
                                           std::vector<uint64_t>& count_per_type) {
   count_per_type.assign(6, 0);  // GPU_LEAF, LEAF_GPU, LEAF_LEAF, LEAF_SPINE, SPINE_LEAF, UNKNOWN
   const int ng = sys->num_groups_;
-  const int gpu_per_group = sys->num_gpus_per_group_;
-  const int sw_per_group = sys->num_switches_per_group_;
+  const int gpu_per_group = sys->num_gpus_per_server_;
+  const int sw_per_group = sys->num_switches_per_server_;
   const int n_spine = sys->num_spine_switches_;
   const int links_per_pair = sys->spine_leaf_links_per_pair_;
   const auto& links_per_switch = sys->links_per_switch_;

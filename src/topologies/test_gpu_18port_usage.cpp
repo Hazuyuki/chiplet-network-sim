@@ -97,7 +97,7 @@ log_file = ../output/gpu18port.log
   const int warmup = 500;
   const int measure = 1000;
   const double inj_rate = 5.0;
-  const int num_gpus_per_group = system->num_gpus_per_group_;
+  const int num_gpus_per_group = system->num_gpus_per_server_;
   const int num_gpus = network->num_cores_;
   const int gpu_radix = 18;
 

@@ -56,7 +56,7 @@ static void test_topology(const std::string& config_path) {
     assert(group->num_gpus_ == num_gpus);
     assert(group->num_switches_ == num_switches);
 
-    std::cout << "\n--- 2. Group " << gid << " GPU↔Switch 连接 ---" << std::endl;
+    std::cout << "\n--- 2. Server " << sid << " GPU↔Switch 连接 ---" << std::endl;
     std::vector<int> gpu_port_base(num_switches);
     for (int sw = 1; sw < num_switches; sw++) {
       gpu_port_base[sw] = gpu_port_base[sw - 1] + system->links_per_switch_[sw - 1];
@@ -65,19 +65,19 @@ static void test_topology(const std::string& config_path) {
       Node* gpu = group->get_gpu(gpu_id);
       assert(gpu->radix_ == system->gpu_nvlink_ports_);
       assert(gpu->id_.node_id == gpu_id);
-      assert(gpu->id_.group_id == gid);
+      assert(gpu->id_.group_id == sid);
 
       for (int sw_id = 0; sw_id < num_switches; sw_id++) {
         int gpu_port = gpu_port_base[sw_id];
         NodeID linked = gpu->link_nodes_[gpu_port];
         assert(linked.node_id == num_gpus + sw_id);
-        assert(linked.group_id == gid);
+        assert(linked.group_id == sid);
 
         Node* sw = group->get_nvswitch(sw_id);
         int n_links = system->links_per_switch_[sw_id];
         int sw_port = gpu_id * n_links;
         assert(sw->link_nodes_[sw_port].node_id == gpu_id);
-        assert(sw->link_nodes_[sw_port].group_id == gid);
+        assert(sw->link_nodes_[sw_port].group_id == sid);
         assert(gpu->link_buffers_[gpu_port] == sw->in_buffers_[sw_port]);
         assert(sw->link_buffers_[sw_port] == gpu->in_buffers_[gpu_port]);
       }
@@ -85,11 +85,11 @@ static void test_topology(const std::string& config_path) {
     std::cout << "  ✓ 所有 GPU 与 Switch 双向连接正确 (gpu_nvlink_ports=" << system->gpu_nvlink_ports_ << ")" << std::endl;
 
     if (!system->switches_fully_connected_ || num_switches < 2) {
-      std::cout << "\n--- 3. Group " << gid << " Switch↔Switch 连接 --- 跳过(未启用或仅1个Switch)" << std::endl;
+      std::cout << "\n--- 3. Server " << sid << " Switch↔Switch 连接 --- 跳过(未启用或仅1个Switch)" << std::endl;
       continue;
     }
 
-    std::cout << "\n--- 3. Group " << gid << " Switch↔Switch 连接 ---" << std::endl;
+    std::cout << "\n--- 3. Server " << sid << " Switch↔Switch 连接 ---" << std::endl;
     for (int sw1_id = 0; sw1_id < num_switches; sw1_id++) {
       Node* sw1 = group->get_nvswitch(sw1_id);
       int sw1_port_offset = num_gpus * system->links_per_switch_[sw1_id];
@@ -115,7 +115,7 @@ static void test_topology(const std::string& config_path) {
   std::cout << "\n--- 4. 流控初始化 (upstream) ---" << std::endl;
 
   for (int sid = 0; sid < num_servers; sid++) {
-    NVSwitchGroup* group = system->get_group(gid);
+    NVSwitchGroup* group = system->get_group(sid);
     for (int i = 0; i < group->num_nodes_; i++) {
       Node* node = group->get_node(i);
       for (int port = 0; port < node->radix_; port++) {

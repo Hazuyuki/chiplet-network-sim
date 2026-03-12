@@ -7,11 +7,11 @@ C_DEFINES =
 
 C_INCLUDES = -I/share/zhuyu-nfs/chiplet-network-sim/src -I/share/zhuyu-nfs/chiplet-network-sim/src/netrace -I/share/zhuyu-nfs/chiplet-network-sim/src/topologies -I/share/zhuyu-nfs/chiplet-network-sim/src/traffic
 
-C_FLAGS = -O3 -DNDEBUG
+C_FLAGS = 
 
 CXX_DEFINES = 
 
 CXX_INCLUDES = -I/share/zhuyu-nfs/chiplet-network-sim/src -I/share/zhuyu-nfs/chiplet-network-sim/src/netrace -I/share/zhuyu-nfs/chiplet-network-sim/src/topologies -I/share/zhuyu-nfs/chiplet-network-sim/src/traffic
 
-CXX_FLAGS = -O3 -DNDEBUG
+CXX_FLAGS = 
 
