@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
   std::string test_config = R"(
 [Network]
 topology = NVSwitch
-num_gpus_per_group = 8
-num_switches_per_group = 4
+num_gpus_per_server_ = 8
+num_switches_per_server_ = 4
 num_groups = 8
 gpu_nvlink_ports = 18
 switches_fully_connected = true
@@ -101,8 +101,8 @@ log_file = ../output/spray_verify.log
   const int warmup = 500;
   const int measure = 1000;
   const double inj_rate = 5.0;
-  const int num_gpus_per_group = system->num_gpus_per_server_;
-  const int num_switches_per_group = system->num_switches_per_server_;
+  const int num_gpus_per_server_ = system->num_gpus_per_server_;
+  const int num_switches_per_server_ = system->num_switches_per_server_;
   const int num_gpus = network->num_cores_;
 
   param->traffic = "ring_all_reduce";
@@ -130,13 +130,13 @@ log_file = ../output/spray_verify.log
   network->enable_diagnostics(false);
 
   // 按目的 GPU 聚合：每个 GPU 从 Leaf 0,1,2,3 各收到多少
-  std::vector<std::vector<uint64_t>> per_dest(num_gpus, std::vector<uint64_t>(num_switches_per_group, 0));
+  std::vector<std::vector<uint64_t>> per_dest(num_gpus, std::vector<uint64_t>(num_switches_per_server_, 0));
   uint64_t total_recorded = 0;
   for (const auto& kv : counts) {
     int dest_global = kv.first.first;
     int ingress_sw = kv.first.second;
     uint64_t c = kv.second;
-    if (dest_global >= 0 && dest_global < num_gpus && ingress_sw >= 0 && ingress_sw < num_switches_per_group) {
+    if (dest_global >= 0 && dest_global < num_gpus && ingress_sw >= 0 && ingress_sw < num_switches_per_server_) {
       per_dest[dest_global][ingress_sw] += c;
       total_recorded += c;
     }
@@ -151,9 +151,9 @@ log_file = ../output/spray_verify.log
   std::cout << std::endl;
 
   // 汇总：全网的 Leaf0/1/2/3 占比
-  std::vector<uint64_t> sum_per_leaf(num_switches_per_group, 0);
+  std::vector<uint64_t> sum_per_leaf(num_switches_per_server_, 0);
   for (int g = 0; g < num_gpus; g++)
-    for (int sw = 0; sw < num_switches_per_group; sw++)
+    for (int sw = 0; sw < num_switches_per_server_; sw++)
       sum_per_leaf[sw] += per_dest[g][sw];
   uint64_t sum_all = 0;
   for (uint64_t c : sum_per_leaf) sum_all += c;
@@ -161,7 +161,7 @@ log_file = ../output/spray_verify.log
   std::cout << "--- 全网：到达 GPU 的包按 ingress Leaf 分布 ---" << std::endl;
   std::cout << "| Ingress Leaf | 包数    | 占比(%) | 期望(均匀) |" << std::endl;
   std::cout << "|--------------|--------|--------|------------|" << std::endl;
-  for (int sw = 0; sw < num_switches_per_group; sw++) {
+  for (int sw = 0; sw < num_switches_per_server_; sw++) {
     double pct = (sum_all > 0) ? (100.0 * sum_per_leaf[sw] / sum_all) : 0;
     printf("| Leaf %d         | %6lu | %6.1f | 25.0       |\n", sw, sum_per_leaf[sw], pct);
   }
@@ -172,11 +172,11 @@ log_file = ../output/spray_verify.log
   for (int gpu : {0, 1, 32, 63}) {
     if (gpu >= num_gpus) continue;
     uint64_t tot = 0;
-    for (int sw = 0; sw < num_switches_per_group; sw++) tot += per_dest[gpu][sw];
+    for (int sw = 0; sw < num_switches_per_server_; sw++) tot += per_dest[gpu][sw];
     if (tot == 0) continue;
-    std::cout << "  GPU " << gpu << " (group " << (gpu / num_gpus_per_group) << ", local " << (gpu % num_gpus_per_group)
+    std::cout << "  GPU " << gpu << " (group " << (gpu / num_gpus_per_server_) << ", local " << (gpu % num_gpus_per_server_)
               << "): total=" << tot;
-    for (int sw = 0; sw < num_switches_per_group; sw++) {
+    for (int sw = 0; sw < num_switches_per_server_; sw++) {
       double pct = 100.0 * per_dest[gpu][sw] / tot;
       std::cout << "  Leaf" << sw << "=" << std::fixed << std::setprecision(1) << pct << "%";
     }
@@ -185,7 +185,7 @@ log_file = ../output/spray_verify.log
 
   std::cout << std::endl << "--- 结论 ---" << std::endl;
   double max_frac = 0, min_frac = 100;
-  for (int sw = 0; sw < num_switches_per_group; sw++) {
+  for (int sw = 0; sw < num_switches_per_server_; sw++) {
     double pct = (sum_all > 0) ? (100.0 * sum_per_leaf[sw] / sum_all) : 0;
     if (pct > max_frac) max_frac = pct;
     if (pct < min_frac) min_frac = pct;
@@ -200,7 +200,7 @@ log_file = ../output/spray_verify.log
   std::filesystem::path csv_path = out_dir / "packet_spraying_ingress_by_leaf.csv";
   std::ofstream csv(csv_path);
   csv << "ingress_leaf,packet_count,pct\n";
-  for (int sw = 0; sw < num_switches_per_group; sw++) {
+  for (int sw = 0; sw < num_switches_per_server_; sw++) {
     double pct = (sum_all > 0) ? (100.0 * sum_per_leaf[sw] / sum_all) : 0;
     csv << sw << "," << sum_per_leaf[sw] << "," << pct << "\n";
   }
