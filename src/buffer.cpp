@@ -91,6 +91,11 @@ bool Buffer::allocate_in_link(Packet& p) {
     // link is allocated by this thread (packet)
     if (node_->id_ != p.destination_) {
       if (param->flow_control == "credit" && upstream_node_ != nullptr && upstream_port_ >= 0) {
+        // 检查 credit 是否足够，足够才消耗，不够则释放链路并返回失败
+        if (!upstream_node_->has_credit(upstream_port_, vcb, p.length_)) {
+          in_link_used_.store(false);
+          return false;
+        }
         upstream_node_->consume_credit(upstream_port_, vcb, p.length_);
       }
       push_pkt(&p, vcb);
