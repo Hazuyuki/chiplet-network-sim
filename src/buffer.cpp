@@ -1,5 +1,7 @@
 #include "buffer.h"
 
+#include <thread>
+
 #include "config.h"
 #include "packet.h"
 #include "system.h"
@@ -91,10 +93,17 @@ bool Buffer::allocate_in_link(Packet& p) {
     // link is allocated by this thread (packet)
     if (node_->id_ != p.destination_) {
       if (param->flow_control == "credit" && upstream_node_ != nullptr && upstream_port_ >= 0) {
-        // 检查 credit 是否足够，足够才消耗，不够则释放链路并返回失败
-        if (!upstream_node_->has_credit(upstream_port_, vcb, p.length_)) {
-          in_link_used_.store(false);
-          return false;
+        // 等待直到有足够的 credit（最多等待一定次数，避免死循环）
+        const int max_wait = 10000;
+        int wait_count = 0;
+        while (!upstream_node_->has_credit(upstream_port_, vcb, p.length_)) {
+          if (++wait_count >= max_wait) {
+            // 超时，释放链路并返回失败（不再 assert）
+            in_link_used_.store(false);
+            return false;
+          }
+          // 让出 CPU，让其他线程有机会返回 credit
+          std::this_thread::yield();
         }
         upstream_node_->consume_credit(upstream_port_, vcb, p.length_);
       }
