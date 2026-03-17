@@ -31,6 +31,7 @@ class TrafficManager {
   Packet* sd_trace_mess();
   void ring_all_reduce_mess(std::vector<Packet*>& packets);
   void ring_all_reduce_bi_mess(std::vector<Packet*>& packets);
+  void hierarchical_all_reduce_mess(std::vector<Packet*>& packets, uint64_t cyc);
   void torus_all_reduce_mess(std::vector<Packet*>& packets);
   void allreduce_torus(std::vector<Packet*>& packets);
   void torus_hirechical_reduce_mess(std::vector<Packet*>& packets);

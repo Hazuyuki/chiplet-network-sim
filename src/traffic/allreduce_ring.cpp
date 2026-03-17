@@ -194,3 +194,74 @@ void TrafficManager::ring_all_reduce_bi_mess(std::vector<Packet*>& packets) {
     }
   }
 }
+
+/**
+ * Hierarchical All-Reduce: 适配 Super Node 架构
+ * 
+ * 算法流程（以 64 GPU 为例，8 GPU/server，8 servers/super-node）：
+ * - Phase 1 (偶数周期): Server 内 Ring (Reduce-Scatter)
+ * - Phase 2 (奇数周期): Server 间 Ring (All-Reduce)
+ * - 每个 GPU 每周期产生 1 个包
+ * 
+ * 简化实现：
+ * - 单 Server (8 GPU): 退化为普通 Ring-All-Reduce（因为没有跨 server 流量）
+ */
+void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets, uint64_t cyc) {
+  // 获取拓扑参数
+  int num_groups = network->num_groups_;  // num_servers_per_super_node
+  int cores_per_group = (num_groups > 0 && network->groups_[0] != nullptr)
+                          ? network->groups_[0]->num_cores_  // num_gpus_per_server
+                          : traffic_scale_;
+  
+  int num_servers = num_groups;
+  int gpus_per_server = cores_per_group;
+  int total_gpus = traffic_scale_;
+  
+  // 验证参数
+  if (total_gpus != num_servers * gpus_per_server) {
+    std::cerr << "Warning: hierarchical_all_reduce requires total_gpus=" << num_servers << "*" 
+              << gpus_per_server << "=" << (num_servers * gpus_per_server) 
+              << ", but got " << total_gpus << ". Falling back to ring_all_reduce." << std::endl;
+    ring_all_reduce_mess(packets);
+    return;
+  }
+  
+  // 单 server 时退化为普通 ring all-reduce
+  if (num_servers == 1) {
+    ring_all_reduce_mess(packets);
+    return;
+  }
+  
+  // 多 server: 使用周期号决定相位
+  bool intra_server_phase = (cyc % 2 == 0);
+  
+  for (pkt_for_injection_ += message_per_cycle(); pkt_for_injection_ > traffic_scale_;
+       pkt_for_injection_ -= traffic_scale_) {
+    
+    for (int src = 0; src < traffic_scale_; src++) {
+      int server_id = src / gpus_per_server;
+      int gpu_in_server = src % gpus_per_server;
+      
+      int dest;
+      
+      if (intra_server_phase) {
+        // server 内阶段: server 内 ring
+        int server_base = server_id * gpus_per_server;
+        dest = server_base + (gpu_in_server + 1) % gpus_per_server;
+      } else {
+        // server 间阶段: server 间 ring (使用 gpu_in_server 作为代表)
+        int next_server = (server_id + 1) % num_servers;
+        dest = next_server * gpus_per_server + gpu_in_server;
+      }
+      
+      // 确保 src != dest
+      if (src == dest) {
+        dest = (dest + 1) % traffic_scale_;
+      }
+      
+      Packet* mess = new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
+      packets.push_back(mess);
+      all_message_num_ += 1;
+    }
+  }
+}

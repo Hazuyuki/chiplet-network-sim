@@ -145,6 +145,9 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
   } else if (traffic_ == "ring_all_reduce_bi") {
     ring_all_reduce_bi_mess(packets);
     return;
+  } else if (traffic_ == "hierarchical_all_reduce") {
+    hierarchical_all_reduce_mess(packets, cyc);
+    return;
   } else if (traffic_ == "netrace") {
     netrace(packets, cyc);
     return;

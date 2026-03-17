@@ -37,6 +37,8 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_allreduce_diagnosis.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_link_bottleneck_diagnosis.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying_verify.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_gpu_18port_usage.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_8gpu_spray_diagnosis.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_latency_breakdown.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -170,6 +172,32 @@ add_executable(test_gpu_18port_usage
 target_include_directories(test_gpu_18port_usage PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
   target_link_libraries(test_gpu_18port_usage ${Boost_LIBRARIES})
+endif()
+
+# 8GPU 包泼洒诊断：快速验证包是否均匀从各 Leaf 进入目的 GPU
+add_executable(test_8gpu_spray_diagnosis
+  src/topologies/test_8gpu_spray_diagnosis.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_8gpu_spray_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_8gpu_spray_diagnosis ${Boost_LIBRARIES})
+endif()
+
+# 延迟分解诊断
+add_executable(test_latency_breakdown
+  src/topologies/test_latency_breakdown.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_latency_breakdown PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_latency_breakdown ${Boost_LIBRARIES})
 endif()
 
 # Add test executable for NVSwitch topology (full test suite, optional)
