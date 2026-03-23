@@ -152,9 +152,16 @@ int main(int argc, char* argv[]) {
     nt_close_trfile(TM->CTX);
   } 
   else if (param->traffic.find("collective") != std::string::npos) {
-    for (int i = 2; i < 10; i++) {
+    // 数据大小扫描: 使用更大的数据量来测试
+    // data_size 以 flits 为单位
+    // 每个 GPU 的数据量 = data_size / num_gpus
+    // Ring All-Reduce 需要 (num_gpus - 1) * 2 轮
+    // Hierarchical 需要 (gpus_per_server - 1) * 2 + (num_servers - 1) * 2 轮
+    
+    // 测试更大的数据量: 2^10 到 2^17 (1MB to 64MB per GPU, 假设 1 flit = 16 bytes)
+    for (int i = 10; i < 18; i++) {
       TM->reset();
-      TM->data_size = TM->traffic_scale_ * (1 << i);
+      TM->data_size = 1 << i;  // 使用固定的 flits 数量
       uint64_t sim_cycle = 0;
       while (true){
         TM->genMes(all_packets);

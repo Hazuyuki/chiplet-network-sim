@@ -82,6 +82,7 @@ void TrafficManager::reset() {
   total_external_hops_.store(0);
   total_specific_hops_.store(0);
   total_other_hops_.store(0);
+  stage = 0;  // 重置 stage
 }
 
 void TrafficManager::print_statistics() {
@@ -139,13 +140,13 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
   } else if (traffic_ == "torus_hirechical_reduce") {
     torus_hirechical_reduce_mess(packets);
     return;
-  } else if (traffic_ == "ring_all_reduce") {
+  }   else if (traffic_ == "ring_all_reduce" || traffic_ == "collective_ring_all_reduce") {
     ring_all_reduce_mess(packets);
     return;
   } else if (traffic_ == "ring_all_reduce_bi") {
     ring_all_reduce_bi_mess(packets);
     return;
-  } else if (traffic_ == "hierarchical_all_reduce") {
+  } else if (traffic_ == "hierarchical_all_reduce" || traffic_ == "collective_hierarchical_all_reduce") {
     hierarchical_all_reduce_mess(packets, cyc);
     return;
   } else if (traffic_ == "netrace") {
