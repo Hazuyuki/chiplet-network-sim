@@ -65,6 +65,7 @@ class TrafficManager {
   double throughput;
   std::chrono::system_clock::time_point time_;
   int stage;  // 用于 collective 通信的阶段计数器
+  int gpu_nvlink_ports;  // 每个 GPU 的 NVLink port 数量
   // atomic statistics, modified by all threds
   std::atomic_uint64_t all_message_num_;
   std::atomic_uint64_t message_arrived_;

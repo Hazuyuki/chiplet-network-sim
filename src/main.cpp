@@ -158,10 +158,10 @@ int main(int argc, char* argv[]) {
     // Ring All-Reduce 需要 (num_gpus - 1) * 2 轮
     // Hierarchical 需要 (gpus_per_server - 1) * 2 + (num_servers - 1) * 2 轮
     
-    // 测试更大的数据量: 2^10 到 2^17 (1MB to 64MB per GPU, 假设 1 flit = 16 bytes)
-    for (int i = 10; i < 18; i++) {
+    // 测试数据量: 2^10 到 2^14 (64KB to 4MB per GPU)
+    for (int i = 10; i < 15; i++) {
       TM->reset();
-      TM->data_size = 1 << i;  // 使用固定的 flits 数量
+      TM->data_size = 1 << i;  // 使用固定的 flits 数量 (单位: flits)
       uint64_t sim_cycle = 0;
       while (true){
         TM->genMes(all_packets);

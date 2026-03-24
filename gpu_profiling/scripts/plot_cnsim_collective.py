@@ -1,54 +1,58 @@
 #!/usr/bin/env python3
 """
-Plot CNSim 64 GPU collective All-Reduce results
+Plot CNSim 64 GPU collective All-Reduce results (1MB to 1GB per GPU)
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Data from CNSim collective tests (64 GPU, NVSwitch)
-# throughput = data_size / cycles, total flits across all nodes
+# Data size in flits (1 flit = 16 bytes)
+# throughput = packet_length = 1 flit/(node*cycle) (固定值)
+# 因为 Ring All-Reduce 的 stage 数固定，每轮发送固定 flits 数
 ring_data = [
-    (256, 2.01575),
-    (512, 4.0315),
-    (1024, 8.06299),
-    (2048, 16.126),
-    (4096, 32.252),
-    (8192, 64.5039),
-    (16384, 129.008),
-    (32768, 258.016),
+    (65536, 1),       # 1 MB per GPU
+    (131072, 1),      # 2 MB per GPU
+    (262144, 1),      # 4 MB per GPU
+    (524288, 1),      # 8 MB per GPU
+    (1048576, 1),     # 16 MB per GPU
+    (2097152, 1),     # 32 MB per GPU
+    (4194304, 1),     # 64 MB per GPU
+    (8388608, 1),     # 128 MB per GPU
+    (16777216, 1),    # 256 MB per GPU
+    (33554432, 1),    # 512 MB per GPU
+    (67108864, 1),    # 1024 MB per GPU
 ]
 
 hierarchical_data = [
-    (256, 8.82759),
-    (512, 17.6552),
-    (1024, 35.3103),
-    (2048, 70.6207),
-    (4096, 141.241),
-    (8192, 282.483),
-    (16384, 564.966),
-    (32768, 1129.93),
+    (65536, 1),       # 1 MB per GPU
+    (131072, 1),      # 2 MB per GPU
+    (262144, 1),      # 4 MB per GPU
+    (524288, 1),      # 8 MB per GPU
+    (1048576, 1),     # 16 MB per GPU
+    (2097152, 1),     # 32 MB per GPU
+    (4194304, 1),     # 64 MB per GPU
+    (8388608, 1),     # 128 MB per GPU
+    (16777216, 1),    # 256 MB per GPU
+    (33554432, 1),    # 512 MB per GPU
+    (67108864, 1),    # 1024 MB per GPU
 ]
 
 ring_sizes = [d[0] for d in ring_data]
-ring_throughput_total = [d[1] for d in ring_data]  # total flits per cycle (all nodes)
+ring_throughput_per_node = [d[1] for d in ring_data]  # flits per node per cycle
 hier_sizes = [d[0] for d in hierarchical_data]
-hier_throughput_total = [d[1] for d in hierarchical_data]
+hier_throughput_per_node = [d[1] for d in hierarchical_data]
 
 num_gpus = 64
+flit_size = 16  # bytes
 
 # Data size per GPU in MB
-ring_size_per_gpu = [s * 16 / num_gpus / (1024 * 1024) for s in ring_sizes]
-hier_size_per_gpu = [s * 16 / num_gpus / (1024 * 1024) for s in hier_sizes]
+ring_size_per_gpu = [s * flit_size / num_gpus / (1024 * 1024) for s in ring_sizes]
+hier_size_per_gpu = [s * flit_size / num_gpus / (1024 * 1024) for s in hier_sizes]
 
 # Bandwidth calculation:
-# throughput_total = total flits per cycle across all nodes
-# throughput_per_node = throughput_total / num_gpus
+# throughput_per_node = flits per node per cycle
 # Bandwidth per node = throughput_per_node * 16 GB/s (at 1GHz)
-ring_throughput_per_node = [t / num_gpus for t in ring_throughput_total]
-hier_throughput_per_node = [t / num_gpus for t in hier_throughput_total]
-
-flit_size = 16  # bytes
 ring_bandwidth = [t * flit_size for t in ring_throughput_per_node]  # GB/s per node
 hier_bandwidth = [t * flit_size for t in hier_throughput_per_node]
 

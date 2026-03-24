@@ -9,6 +9,7 @@ TrafficManager::TrafficManager() {
   traffic_scale_ = param->traffic_scale;
   if (traffic_scale_ == 0) traffic_scale_ = network->num_cores_;
   message_length_ = param->packet_length;
+  gpu_nvlink_ports = param->params_ptree.get<int>("Network.gpu_nvlink_ports", 18);
   if (traffic_ == "sd_trace") {
     trace_.open(param->trace_file, std::fstream::in);
     std::cout << "Trace file is read!" << std::endl;

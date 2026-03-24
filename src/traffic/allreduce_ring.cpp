@@ -47,16 +47,22 @@ static int topo_aware_prev_in_ring(int src, int n, const std::string& topology, 
 }
 
 void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
-  // Ring All-Reduce 需要 N-1 轮 Reduce-Scatter + N-1 轮 All-Gather = 2(N-1) 轮
-  int total_stages = (traffic_scale_ - 1) * 2;
-
+  // 每轮发送的 flits 数固定 = ports_per_gpu（最大并行能力）
+  int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 1;
+  int flits_to_send = ports_per_gpu;
+  
   // 获取拓扑参数
   int num_groups = network->num_groups_;
   int cores_per_group = (num_groups > 0 && network->groups_[0] != nullptr)
                             ? network->groups_[0]->num_cores_
                             : traffic_scale_;
-
-  if (stage < total_stages) {
+  
+  // 计算总共需要发送的 flits 数
+  uint64_t total_flits_needed = (uint64_t)data_size * traffic_scale_;
+  uint64_t flits_sent = all_message_num_.load();
+  
+  // 如果还没发送完所有数据，继续发送
+  if (flits_sent < total_flits_needed) {
     for (int src = 0; src < traffic_scale_; src++) {
       int dest1;
       if (param->topology == "DragonflyChiplet") {
@@ -69,34 +75,34 @@ void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
         else if (src % 16 == 10 || src % 16 == 11 || src % 16 == 14 || src % 16 == 15)
           dest1 = (src - 2) % traffic_scale_;
       } else if (param->topology == "NVSwitch") {
-        // 前 N-1 轮是 Reduce-Scatter，后 N-1 轮是 All-Gather
-        if (stage < traffic_scale_ - 1) {
-          // Reduce-Scatter: 向 ring 中下一个节点发送
-          dest1 = topo_aware_next_in_ring(src, traffic_scale_, param->topology, num_groups,
-                                          cores_per_group);
-        } else {
-          // All-Gather: 向 ring 中上一个节点发送
-          dest1 = topo_aware_prev_in_ring(src, traffic_scale_, param->topology, num_groups,
-                                          cores_per_group);
-        }
+        // Ring 路由
+        dest1 = (src + 1) % traffic_scale_;
       } else {
-        if (stage < traffic_scale_ - 1) {
-          dest1 = (src + 1) % traffic_scale_;
-        } else {
-          dest1 = (src - 1 + traffic_scale_) % traffic_scale_;
-        }
+        dest1 = (src + 1) % traffic_scale_;
       }
-      Packet* mess =
-          new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest1), message_length_);
-      packets.push_back(mess);
-      all_message_num_ += 1;
+      
+      // 每轮发送 flits_to_send 个 flits
+      for (int p = 0; p < flits_to_send; p++) {
+        Packet* mess =
+            new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest1), message_length_);
+        packets.push_back(mess);
+        all_message_num_ += 1;
+      }
     }
     stage++;
-  } else if (stage == total_stages) {
-    // 完成
-    stage = 0;
-    is_done = true;
+  } else {
+    // 数据已发送完毕，等待最后一个包到达后结束
+    // 使用 stage 作为标记：当数据发送完毕后，设置 stage = -1 表示等待状态
+    if (stage >= 0) {
+      stage = -1;  // 标记为等待状态
+    }
+    // 吞吐量 = 总数据量 / 总周期数 (per node)
     throughput = (double)data_size / cycles;
+    
+    // 当 message_arrived 达到预期时结束
+    if (message_arrived_.load() >= total_flits_needed) {
+      is_done = true;
+    }
   }
 }
 
@@ -257,6 +263,11 @@ void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets,
   int total_stages = intra_reduce_stages + inter_reduce_stages + inter_gather_stages + intra_gather_stages;
 
   if (stage < total_stages) {
+    // 每轮发送的 flits 数固定 = ports_per_gpu（最大并行能力）
+    // 不受 data_size 影响，data_size 只决定需要多少轮才能完成
+    int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 1;
+    int flits_to_send = ports_per_gpu;
+    
     for (int src = 0; src < traffic_scale_; src++) {
       int server_id = src / gpus_per_server;
       int gpu_in_server = src % gpus_per_server;
@@ -291,15 +302,19 @@ void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets,
 
       // 确保 src != dest
       if (src != dest) {
-        Packet* mess = new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
-        packets.push_back(mess);
-        all_message_num_ += 1;
+        // 每轮发送 flits_to_send 个 flits
+        for (int p = 0; p < flits_to_send; p++) {
+          Packet* mess = new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest), message_length_);
+          packets.push_back(mess);
+          all_message_num_ += 1;
+        }
       }
     }
     stage++;
   } else if (stage == total_stages) {
     stage = 0;
     is_done = true;
+    // 吞吐量 = 总数据量 / 总周期数 (per node)
     throughput = (double)data_size / cycles;
   }
 }
