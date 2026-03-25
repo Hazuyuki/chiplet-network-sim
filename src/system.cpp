@@ -277,9 +277,11 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
     return;
   }
 
-  // 3. 优先级策略：负载均衡优先（per-packet 选最少使用的端口）
-  // credit 模式：按 port_usage 升序（最少使用优先），使 18 口等负载；同 usage 时按 credit 降序，再 round-robin
-  // 非 credit 模式：按 port_usage 升序（最少使用优先）
+  // 3. 优先级策略
+  // link_aware 模式：usage 低优先，同 usage 时链路空闲优先（保持负载均衡的前提下避免选忙端口）
+  // 非 link_aware：usage 低 > credit 多 > round-robin（原逻辑）
+  const bool link_aware = param->vc_alloc_link_aware;
+
   std::vector<std::pair<Buffer*, int>> ordered_ports;
   if (credit_mode) {
     struct PortCredit {
@@ -287,6 +289,7 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
       int port;
       int max_credit;
       uint64_t usage;
+      bool link_free;
     };
     std::vector<PortCredit> with_credit;
     for (const auto& [buf, port] : candidates) {
@@ -299,31 +302,54 @@ static void vc_allocate_priority(Packet& p, Node* sender, bool credit_mode, Syst
           if (c > max_c) max_c = c;
         }
       }
-      with_credit.push_back({buf, port, max_c, sender->get_port_usage(port)});
+      bool lfree = link_aware ? !buf->is_in_link_used() : false;
+      with_credit.push_back({buf, port, max_c, sender->get_port_usage(port), lfree});
     }
     const int nports = static_cast<int>(with_credit.size());
     const uint64_t rr = sender->next_vc_alloc_round_robin();
     std::sort(with_credit.begin(), with_credit.end(),
-              [nports, rr](const PortCredit& a, const PortCredit& b) {
-                if (a.usage != b.usage) return a.usage < b.usage;   // 负载均衡：优先最少使用的端口
+              [nports, rr, link_aware](const PortCredit& a, const PortCredit& b) {
+                if (a.usage != b.usage) return a.usage < b.usage;
+                if (link_aware && a.link_free != b.link_free) return a.link_free > b.link_free;
                 if (a.max_credit != b.max_credit) return a.max_credit > b.max_credit;
                 return ((a.port + rr) % nports) < ((b.port + rr) % nports);
               });
     for (const auto& x : with_credit)
       ordered_ports.emplace_back(x.buf, x.port);
   } else {
-    uint64_t min_usage = UINT64_MAX;
-    for (const auto& [buf, port] : candidates) {
-      uint64_t u = sender->get_port_usage(port);
-      if (u < min_usage) min_usage = u;
-    }
-    for (const auto& [buf, port] : candidates) {
-      if (sender->get_port_usage(port) == min_usage)
-        ordered_ports.emplace_back(buf, port);
-    }
-    for (const auto& [buf, port] : candidates) {
-      if (sender->get_port_usage(port) > min_usage)
-        ordered_ports.emplace_back(buf, port);
+    if (link_aware) {
+      struct PortInfo {
+        Buffer* buf;
+        int port;
+        bool link_free;
+        uint64_t usage;
+      };
+      std::vector<PortInfo> infos;
+      for (const auto& [buf, port] : candidates) {
+        infos.push_back({buf, port, !buf->is_in_link_used(), sender->get_port_usage(port)});
+      }
+      std::sort(infos.begin(), infos.end(),
+                [](const PortInfo& a, const PortInfo& b) {
+                  if (a.usage != b.usage) return a.usage < b.usage;
+                  if (a.link_free != b.link_free) return a.link_free > b.link_free;
+                  return false;
+                });
+      for (const auto& x : infos)
+        ordered_ports.emplace_back(x.buf, x.port);
+    } else {
+      uint64_t min_usage = UINT64_MAX;
+      for (const auto& [buf, port] : candidates) {
+        uint64_t u = sender->get_port_usage(port);
+        if (u < min_usage) min_usage = u;
+      }
+      for (const auto& [buf, port] : candidates) {
+        if (sender->get_port_usage(port) == min_usage)
+          ordered_ports.emplace_back(buf, port);
+      }
+      for (const auto& [buf, port] : candidates) {
+        if (sender->get_port_usage(port) > min_usage)
+          ordered_ports.emplace_back(buf, port);
+      }
     }
   }
 
@@ -391,10 +417,16 @@ void System::switch_allocate(Packet& p) {
         int port = sender->get_port_to_buffer(p.next_vc_.buffer);
         record_diag_injected_port(sender, port);
       }
-    } else if (diagnostics_enabled_) {
-      Node* sender = get_node(p.source_);
-      int port = sender->get_port_to_buffer(p.next_vc_.buffer);
-      if (port >= 0) record_diag_link_blocked(sender, port);
+    } else {
+      if (diagnostics_enabled_) {
+        Node* sender = get_node(p.source_);
+        int port = sender->get_port_to_buffer(p.next_vc_.buffer);
+        if (port >= 0) record_diag_link_blocked(sender, port);
+      }
+      if (param->vc_alloc_link_aware) {
+        // 失败时释放 VC 分配，下周期重新选择（可能选到空闲端口）
+        p.next_vc_ = VCInfo();
+      }
     }
   } else if (current_vc.head_packet() == &p) {
     if (current_vc.buffer->allocate_sw_link()) {     // try to allocate the link to the switch

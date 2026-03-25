@@ -39,6 +39,10 @@ list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_packet_spraying_verify.cpp"
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_gpu_18port_usage.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_8gpu_spray_diagnosis.cpp")
 list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_latency_breakdown.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_ring_dest_distribution.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_gpu_port_per_leaf.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_ring_congestion.cpp")
+list(REMOVE_ITEM TOPOLOGY_FILES "src/topologies/test_gpu_port_mapping.cpp")
 
 add_executable (${PROJECT_NAME} ${SRC_FILES} ${NETRACE_FILES} ${TOPOLOGY_FILES} ${TRAFFIC_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src src/netrace src/topologies src/traffic)
@@ -182,9 +186,18 @@ add_executable(test_8gpu_spray_diagnosis
   ${TOPOLOGY_FILES}
   ${TRAFFIC_FILES}
 )
-target_include_directories(test_8gpu_spray_diagnosis PUBLIC src src/netrace src/topologies src/traffic)
+
+# Ring 目的分布诊断：检查 Ring 路由的目的 GPU 是否均匀分布
+add_executable(test_ring_dest_distribution
+  src/topologies/test_ring_dest_distribution.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_ring_dest_distribution PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
-  target_link_libraries(test_8gpu_spray_diagnosis ${Boost_LIBRARIES})
+  target_link_libraries(test_ring_dest_distribution ${Boost_LIBRARIES})
 endif()
 
 # 延迟分解诊断
@@ -198,6 +211,32 @@ add_executable(test_latency_breakdown
 target_include_directories(test_latency_breakdown PUBLIC src src/netrace src/topologies src/traffic)
 if(Boost_FOUND)
   target_link_libraries(test_latency_breakdown ${Boost_LIBRARIES})
+endif()
+
+# GPU Port 按 Leaf 分组统计
+add_executable(test_gpu_port_per_leaf
+  src/topologies/test_gpu_port_per_leaf.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_gpu_port_per_leaf PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_gpu_port_per_leaf ${Boost_LIBRARIES})
+endif()
+
+# Ring 拥塞定量诊断
+add_executable(test_ring_congestion
+  src/topologies/test_ring_congestion.cpp
+  ${SRC_FILES_RTT_DIAG}
+  ${NETRACE_FILES}
+  ${TOPOLOGY_FILES}
+  ${TRAFFIC_FILES}
+)
+target_include_directories(test_ring_congestion PUBLIC src src/netrace src/topologies src/traffic)
+if(Boost_FOUND)
+  target_link_libraries(test_ring_congestion ${Boost_LIBRARIES})
 endif()
 
 # Add test executable for NVSwitch topology (full test suite, optional)

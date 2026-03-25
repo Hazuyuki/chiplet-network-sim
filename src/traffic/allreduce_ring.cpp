@@ -47,9 +47,10 @@ static int topo_aware_prev_in_ring(int src, int n, const std::string& topology, 
 }
 
 void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
-  // 每轮发送的 flits 数固定 = ports_per_gpu（最大并行能力）
-  int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 1;
-  int flits_to_send = ports_per_gpu;
+  int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 18;
+  int pkt_len = message_length_ > 0 ? message_length_ : 1;
+  int flits_to_send = ports_per_gpu / pkt_len;
+  if (flits_to_send < 1) flits_to_send = 1;
   
   // 获取拓扑参数
   int num_groups = network->num_groups_;
@@ -75,13 +76,15 @@ void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
         else if (src % 16 == 10 || src % 16 == 11 || src % 16 == 14 || src % 16 == 15)
           dest1 = (src - 2) % traffic_scale_;
       } else if (param->topology == "NVSwitch") {
-        // Ring 路由
+        // Ring 路由：每个 GPU 向 ring 中下一个节点发送
+        // 但使用所有 ports，每个 port 向同一个目的地发送
         dest1 = (src + 1) % traffic_scale_;
       } else {
         dest1 = (src + 1) % traffic_scale_;
       }
       
-      // 每轮发送 flits_to_send 个 flits
+      // 每轮发送 flits_to_send 个 flits，均匀分布到所有 ports
+      // 在 NVSwitch 拓扑下，packet spraying 会自动将流量分布到多个 switch
       for (int p = 0; p < flits_to_send; p++) {
         Packet* mess =
             new Packet(network->int_to_nodeid(src), network->int_to_nodeid(dest1), message_length_);
@@ -92,7 +95,6 @@ void TrafficManager::ring_all_reduce_mess(std::vector<Packet*>& packets) {
     stage++;
   } else {
     // 数据已发送完毕，等待最后一个包到达后结束
-    // 使用 stage 作为标记：当数据发送完毕后，设置 stage = -1 表示等待状态
     if (stage >= 0) {
       stage = -1;  // 标记为等待状态
     }
@@ -234,8 +236,6 @@ void TrafficManager::ring_all_reduce_bi_mess(std::vector<Packet*>& packets) {
  * 总共 (gpus_per_server - 1) + (num_servers - 1) + (num_servers - 1) + (gpus_per_server - 1) 轮
  */
 void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets, uint64_t cyc) {
-  // 使用类成员 stage 替代静态变量
-
   // 获取拓扑参数
   int num_groups = network->num_groups_;  // num_servers_per_super_node
   int cores_per_group = (num_groups > 0 && network->groups_[0] != nullptr)
@@ -255,24 +255,27 @@ void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets,
     return;
   }
 
-  // 计算总阶段数
-  int intra_reduce_stages = gpus_per_server - 1;      // Server 内 Reduce-Scatter
-  int inter_reduce_stages = num_servers - 1;           // Server 间 Reduce-Scatter
-  int inter_gather_stages = num_servers - 1;           // Server 间 All-Gather
-  int intra_gather_stages = gpus_per_server - 1;       // Server 内 All-Gather
-  int total_stages = intra_reduce_stages + inter_reduce_stages + inter_gather_stages + intra_gather_stages;
-
-  if (stage < total_stages) {
-    // 每轮发送的 flits 数固定 = ports_per_gpu（最大并行能力）
-    // 不受 data_size 影响，data_size 只决定需要多少轮才能完成
-    int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 1;
-    int flits_to_send = ports_per_gpu;
-    
+  int ports_per_gpu = gpu_nvlink_ports > 0 ? gpu_nvlink_ports : 18;
+  int pkt_len = message_length_ > 0 ? message_length_ : 1;
+  int flits_to_send = ports_per_gpu / pkt_len;
+  if (flits_to_send < 1) flits_to_send = 1;
+  
+  // 计算总共需要发送的 flits 数
+  uint64_t total_flits_needed = (uint64_t)data_size * traffic_scale_;
+  uint64_t flits_sent = all_message_num_.load();
+  
+  // 如果还没发送完所有数据，继续发送
+  if (flits_sent < total_flits_needed) {
     for (int src = 0; src < traffic_scale_; src++) {
       int server_id = src / gpus_per_server;
       int gpu_in_server = src % gpus_per_server;
       int dest = src;
 
+      // 计算当前阶段（用于路由选择）
+      int intra_reduce_stages = gpus_per_server - 1;      // Server 内 Reduce-Scatter
+      int inter_reduce_stages = num_servers - 1;           // Server 间 Reduce-Scatter
+      int inter_gather_stages = num_servers - 1;           // Server 间 All-Gather
+      
       if (stage < intra_reduce_stages) {
         // Stage 1: Server 内 Reduce-Scatter - 每个 server 内部 ring
         int server_base = server_id * gpus_per_server;
@@ -311,10 +314,17 @@ void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets,
       }
     }
     stage++;
-  } else if (stage == total_stages) {
-    stage = 0;
-    is_done = true;
+  } else {
+    // 数据已发送完毕，等待最后一个包到达后结束
+    if (stage >= 0) {
+      stage = -1;  // 标记为等待状态
+    }
     // 吞吐量 = 总数据量 / 总周期数 (per node)
     throughput = (double)data_size / cycles;
+    
+    // 当 message_arrived 达到预期时结束
+    if (message_arrived_.load() >= total_flits_needed) {
+      is_done = true;
+    }
   }
 }

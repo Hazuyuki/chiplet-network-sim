@@ -79,6 +79,8 @@ static DiagResult run_allreduce_diagnosis(const std::string& traffic, double inj
   TM->traffic_ = traffic;
   TM->traffic_scale_ = param->traffic_scale;
   TM->injection_rate_ = inj_rate;
+  // 设置足够大的 data_size 以便在诊断期间持续生成流量
+  TM->data_size = 8192;
 
   std::vector<Packet*> packets;
 

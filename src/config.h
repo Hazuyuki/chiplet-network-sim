@@ -48,6 +48,7 @@ struct Parameters {
   std::string flow_control;  // "buffer" = 接收端预留, "credit" = 发送端 credit (NVSwitch 风格)
   int credit_return_delay;   // credit 回报延迟 (cycles)，0=立即回报，>0 模拟 RTT
   int processing_time;     // cycles
+  bool vc_alloc_link_aware;  // VC 分配时优先选择链路空闲的端口，避免 head-of-line blocking
 
   // Workloads
   std::string traffic;

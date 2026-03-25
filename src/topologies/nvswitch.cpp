@@ -164,9 +164,11 @@ void NVSwitchSystem::read_config() {
 
   int gpu_switch_latency = param->params_ptree.get<int>("Network.gpu_switch_latency", 1);
   int switch_switch_latency = param->params_ptree.get<int>("Network.switch_switch_latency", 1);
+  int gpu_switch_width = param->params_ptree.get<int>("Network.gpu_switch_link_width", 1);
+  int switch_switch_width = param->params_ptree.get<int>("Network.switch_switch_link_width", gpu_switch_width);
 
-  gpu_switch_channel_ = Channel(1, gpu_switch_latency);
-  switch_switch_channel_ = Channel(1, switch_switch_latency);
+  gpu_switch_channel_ = Channel(gpu_switch_width, gpu_switch_latency);
+  switch_switch_channel_ = Channel(switch_switch_width, switch_switch_latency);
 
   // Distribute gpu_nvlink_ports across switches (e.g. 18 ports, 4 switches -> 5,5,4,4)
   int base = gpu_nvlink_ports_ / num_switches_per_server_;

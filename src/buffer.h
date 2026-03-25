@@ -35,6 +35,8 @@ class Buffer {
   bool allocate_sw_link();  
   void release_sw_link();
   void set_upstream(class Node* node, int port);
+  bool is_in_link_used() const { return in_link_used_.load(); }
+  bool is_sw_link_used() const { return sw_link_used_.load(); }
 
   inline Packet* head_packet(int vcb) { return vc_head_packet[vcb].load(); }
   inline bool is_empty(int vcb) { return vc_head_packet[vcb].load() == nullptr; }

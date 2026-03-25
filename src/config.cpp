@@ -13,6 +13,7 @@ Parameters::Parameters(const std::string &config_file) {
   flow_control = params_ptree.get<std::string>("Network.flow_control", "buffer");
   credit_return_delay = params_ptree.get<int>("Network.credit_return_delay", 0);
   processing_time = params_ptree.get<int>("Network.processing_time", 2);
+  vc_alloc_link_aware = params_ptree.get<bool>("Network.vc_alloc_link_aware", false);
 
   traffic = params_ptree.get<std::string>("Workload.traffic", "uniform");
   traffic_scale = params_ptree.get<int>("Workload.traffic_scale", 0);
