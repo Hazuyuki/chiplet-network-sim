@@ -265,3 +265,53 @@ void TrafficManager::hierarchical_all_reduce_mess(std::vector<Packet*>& packets,
     }
   }
 }
+
+// collective_ring_all_reduce: NVSwitch 拓扑下的 Ring All-Reduce 集体模式
+// Ring All-Reduce 算法:
+//   - Scatter-Reduce 阶段: (n-1) 步，每步发送 data_size/n 数据
+//   - All-Gather 阶段: (n-1) 步，每步发送 data_size/n 数据
+//   - 总传输量 = data_size * (n-1) * 2
+//   - 带宽利用率 = (n-1)/n
+void TrafficManager::collective_ring_all_reduce(std::vector<Packet*>& packets) {
+  static int stage = 0;
+  static uint64_t total_flits_transferred = 0;
+  
+  int num_gpus = traffic_scale_;
+  int total_stages = (num_gpus - 1) * 2;
+  
+  // 只有当网络中没有包时才注入新阶段的包
+  if (stage < total_stages && packets.size() == 0) {
+    // 每个阶段每个 GPU 发送 data_size/n flits
+    int flits_per_stage = data_size / num_gpus;
+    if (flits_per_stage < 1) flits_per_stage = 1;
+    
+    int packet_length = std::min(param->buffer_size / 2, flits_per_stage);
+    int packets_per_gpu = flits_per_stage / packet_length;
+    if (packets_per_gpu < 1) packets_per_gpu = 1;
+    
+    for (int src = 0; src < num_gpus; src++) {
+      // Ring 中下一跳: src -> (src+1) % n
+      int dest = (src + 1) % num_gpus;
+      NodeID src_id = network->int_to_nodeid(src);
+      NodeID dest_id = network->int_to_nodeid(dest);
+      
+      for (int i = 0; i < packets_per_gpu; i++) {
+        packets.push_back(new Packet(src_id, dest_id, packet_length));
+        all_message_num_ += packet_length;
+        total_flits_transferred += packet_length;
+      }
+    }
+    stage++;
+  } else if (stage >= total_stages && packets.size() == 0) {
+    // 所有阶段完成
+    stage = 0;
+    
+    // 吞吐率 = 实际传输的数据量 / (cycles * num_gpus)
+    // Ring All-Reduce 总传输量 = data_size * (n-1) * 2
+    uint64_t total_data = data_size * (num_gpus - 1) * 2;
+    throughput = (double)total_data / (cycles * num_gpus);
+    
+    total_flits_transferred = 0;
+    is_done = true;
+  }
+}

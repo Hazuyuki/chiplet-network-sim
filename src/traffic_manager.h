@@ -30,6 +30,7 @@ class TrafficManager {
   Packet* adversarial_mess();
   Packet* sd_trace_mess();
   void ring_all_reduce_mess(std::vector<Packet*>& packets);
+  void collective_ring_all_reduce(std::vector<Packet*>& packets);
   void ring_all_reduce_bi_mess(std::vector<Packet*>& packets);
   void hierarchical_all_reduce_mess(std::vector<Packet*>& packets, uint64_t cyc);
   void torus_all_reduce_mess(std::vector<Packet*>& packets);

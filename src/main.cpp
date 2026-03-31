@@ -152,19 +152,16 @@ int main(int argc, char* argv[]) {
     nt_close_trfile(TM->CTX);
   } 
   else if (param->traffic.find("collective") != std::string::npos) {
-    for (int i = 2; i < 10; i++) {
-      TM->reset();
-      TM->data_size = TM->traffic_scale_ * (1 << i);
-      uint64_t sim_cycle = 0;
-      while (true){
-        TM->genMes(all_packets);
-        run_one_cycle(all_packets, network, sim_cycle);
-        sim_cycle++;
-        if (TM->is_done) break;
-      }
-      // TM->print_statistics();
-      TM->print_collective_statistics();
+    TM->reset();
+    TM->data_size = param->data_size;  // 使用配置文件中的 data_size
+    uint64_t sim_cycle = 0;
+    while (true) {
+      TM->genMes(all_packets);
+      run_one_cycle(all_packets, network, sim_cycle);
+      sim_cycle++;
+      if (TM->is_done) break;
     }
+    TM->print_collective_statistics();
   }
   else {  // gradually increase the injection rate to find the saturation point
     bool saturated = false;

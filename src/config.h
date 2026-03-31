@@ -54,6 +54,7 @@ struct Parameters {
   int traffic_scale;
   int packet_length;  // # of flits
   int single_flow_dest;  // single_flow 目的节点 (默认 1)，用于路径对比实验
+  uint64_t data_size;  // collective 流量的数据量 (flits)
 
   // Simulation Parameters
   uint64_t simulation_time;

@@ -133,6 +133,10 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
     allreduce_torus(packets);
     return;
   }
+  else if (traffic_ == "collective_ring_all_reduce") {
+    collective_ring_all_reduce(packets);
+    return;
+  }
   else if (traffic_ == "torus_all_reduce") {
     torus_all_reduce_mess(packets);
     return;
