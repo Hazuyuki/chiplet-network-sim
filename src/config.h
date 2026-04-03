@@ -71,6 +71,7 @@ struct Parameters {
 
   // I/O Files
   std::string trace_file, netrace_file, output_file, log_file;
+  std::string alltoall_traffic_matrix_file;  // alltoall traffic matrix file path
 
   void print_params() const {
     // print all memebers

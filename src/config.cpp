@@ -36,6 +36,12 @@ Parameters::Parameters(const std::string &config_file) {
     trace_file = params_ptree.get<std::string>("Files.trace_file");
   else if (traffic == "netrace")
     netrace_file = params_ptree.get<std::string>("Files.netrace_file");
+  
+  // alltoall traffic matrix file
+  if (traffic == "collective_alltoall") {
+    alltoall_traffic_matrix_file = params_ptree.get<std::string>("Files.traffic_matrix_file", "");
+  }
+  
   output_file = params_ptree.get<std::string>("Files.output_file", "../../output/output.csv");
   log_file = params_ptree.get<std::string>("Files.log_file", "../../output/log.txt");
 

@@ -31,6 +31,8 @@ class TrafficManager {
   Packet* sd_trace_mess();
   void ring_all_reduce_mess(std::vector<Packet*>& packets);
   void collective_ring_all_reduce(std::vector<Packet*>& packets);
+  void collective_alltoall(std::vector<Packet*>& packets);
+  void load_alltoall_matrix(const std::string& filename);
   void ring_all_reduce_bi_mess(std::vector<Packet*>& packets);
   void hierarchical_all_reduce_mess(std::vector<Packet*>& packets, uint64_t cyc);
   void torus_all_reduce_mess(std::vector<Packet*>& packets);
@@ -49,6 +51,11 @@ class TrafficManager {
   nt_context_t* CTX;
   std::fstream output_;
   std::fstream log_;
+  
+  // alltoall traffic matrix: [src][dest] = data_size in flits
+  std::vector<std::vector<uint64_t>> traffic_matrix_;
+  bool alltoall_matrix_loaded_ = false;
+  uint64_t alltoall_total_flits_ = 0;  // total flits to transfer
 
   double injection_rate_;
   inline double message_per_cycle() const {

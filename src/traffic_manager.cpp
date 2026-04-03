@@ -34,6 +34,12 @@ TrafficManager::TrafficManager() {
   is_done = false;
   data_size = 1;
   throughput = 0;
+  
+  // Load alltoall traffic matrix if specified
+  if (traffic_ == "collective_alltoall" && !param->alltoall_traffic_matrix_file.empty()) {
+    load_alltoall_matrix(param->alltoall_traffic_matrix_file);
+  }
+  
   // statistics
   time_ = std::chrono::system_clock::now();
   all_message_num_.store(0);
@@ -117,6 +123,170 @@ void TrafficManager::print_statistics() {
 #endif  // DEBUG
 }
 
+/**
+ * Load alltoall traffic matrix from CSV file
+ * Format: src,dest,data_size (one entry per line, header optional)
+ * Example:
+ *   src,dest,data_size
+ *   0,1,1024
+ *   0,2,2048
+ *   1,0,512
+ *   ...
+ */
+void TrafficManager::load_alltoall_matrix(const std::string& filename) {
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    std::cerr << "Error: Cannot open alltoall traffic matrix file: " << filename << std::endl;
+    return;
+  }
+  
+  // Initialize matrix with zeros
+  int num_nodes = traffic_scale_;
+  traffic_matrix_.resize(num_nodes, std::vector<uint64_t>(num_nodes, 0));
+  
+  std::string line;
+  bool has_header = false;
+  
+  while (std::getline(file, line)) {
+    // Skip empty lines
+    if (line.empty()) continue;
+    
+    // Check if this is a header line
+    if (line.find("src") != std::string::npos || line.find("dest") != std::string::npos) {
+      has_header = true;
+      continue;
+    }
+    
+    // Parse: src,dest,data_size
+    std::istringstream iss(line);
+    int src, dest;
+    uint64_t data_size_val;
+    char comma1, comma2;
+    
+    if (iss >> src >> comma1 >> dest >> comma2 >> data_size_val) {
+      if (src >= 0 && src < num_nodes && dest >= 0 && dest < num_nodes) {
+        traffic_matrix_[src][dest] = data_size_val;
+        alltoall_total_flits_ += data_size_val;
+      } else {
+        std::cerr << "Warning: Invalid src/dest in line: " << line << std::endl;
+      }
+    } else {
+      std::cerr << "Warning: Failed to parse line: " << line << std::endl;
+    }
+  }
+  
+  file.close();
+  alltoall_matrix_loaded_ = true;
+  
+  std::cout << "=== Alltoall Traffic Matrix Loaded ===" << std::endl;
+  std::cout << "File: " << filename << std::endl;
+  std::cout << "Nodes: " << num_nodes << std::endl;
+  std::cout << "Total flits to transfer: " << alltoall_total_flits_ << std::endl;
+}
+
+/**
+ * collective_alltoall: All-to-All collective communication
+ * 
+ * Each node sends data to all other nodes according to the traffic matrix.
+ * The traffic matrix specifies the amount of data (in flits) to send from src to dest.
+ * 
+ * Algorithm (stage-based, similar to collective_ring_all_reduce):
+ * - Divide into multiple stages
+ * - Each stage injects packets for all pairs with remaining data
+ * - Wait for network to clear between stages
+ * - Complete when all pairs have sent their data
+ * 
+ * Throughput calculation:
+ * - For alltoall, each node sends to (n-1) other nodes
+ * - Total data = sum of all traffic matrix entries
+ * - Throughput = total_data / (cycles * num_nodes)
+ */
+void TrafficManager::collective_alltoall(std::vector<Packet*>& packets) {
+  static bool initialized = false;
+  static std::vector<std::vector<uint64_t>> remaining_flits;  // [src][dest] = remaining flits
+  static uint64_t total_transferred = 0;
+  static int stage = 0;
+  
+  // Initialize on first call
+  if (!initialized) {
+    if (!alltoall_matrix_loaded_) {
+      std::cerr << "Error: Alltoall traffic matrix not loaded!" << std::endl;
+      is_done = true;
+      return;
+    }
+    remaining_flits = traffic_matrix_;
+    initialized = true;
+    std::cout << "Starting collective_alltoall with " << alltoall_total_flits_ << " total flits" << std::endl;
+  }
+  
+  // Only inject when network is empty (same as collective_ring_all_reduce)
+  if (packets.size() == 0) {
+    int num_nodes = traffic_scale_;
+    
+    // Calculate packet length (use buffer_size/2 like ring_all_reduce)
+    int packet_length = std::min(param->buffer_size / 2, message_length_);
+    if (packet_length < 1) packet_length = 1;
+    
+    // Inject one packet per (src, dest) pair per stage (like ring_all_reduce injects per GPU)
+    int packets_injected = 0;
+    
+    for (int src = 0; src < num_nodes; src++) {
+      for (int dest = 0; dest < num_nodes; dest++) {
+        // Skip self-communication
+        if (src == dest) continue;
+        
+        // Check if this pair has remaining data
+        if (remaining_flits[src][dest] > 0) {
+          // Calculate packet length for this packet
+          int pkt_len = std::min((uint64_t)packet_length, remaining_flits[src][dest]);
+          
+          // Create and inject packet
+          NodeID src_id = network->int_to_nodeid(src);
+          NodeID dest_id = network->int_to_nodeid(dest);
+          packets.push_back(new Packet(src_id, dest_id, pkt_len));
+          
+          remaining_flits[src][dest] -= pkt_len;
+          total_transferred += pkt_len;
+          all_message_num_ += pkt_len;
+          packets_injected++;
+        }
+      }
+    }
+    
+    if (packets_injected > 0) {
+      stage++;
+    }
+  }
+  
+  // Check if all transfers are complete
+  bool all_done = true;
+  int num_nodes = traffic_scale_;
+  for (int src = 0; src < num_nodes && all_done; src++) {
+    for (int dest = 0; dest < num_nodes; dest++) {
+      if (src != dest && remaining_flits[src][dest] > 0) {
+        all_done = false;
+        break;
+      }
+    }
+  }
+  
+  if (all_done && packets.size() == 0) {
+    is_done = true;
+    auto end_time = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed = end_time - time_;
+    
+    // Calculate throughput: total flits transferred / (cycles * num_nodes)
+    throughput = (double)total_transferred / (cycles * traffic_scale_);
+    
+    std::cout << "=== Alltoall Complete ===" << std::endl;
+    std::cout << "Time elapsed: " << elapsed.count() << "s" << std::endl;
+    std::cout << "Total flits transferred: " << total_transferred << std::endl;
+    std::cout << "Cycles: " << cycles << std::endl;
+    std::cout << "Throughput: " << throughput << " flits/(node*cycle)" << std::endl;
+    output_ << injection_rate_ << "," << throughput << std::endl;
+  }
+}
+
 void TrafficManager::print_collective_statistics() {
   std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - time_;
   std::cout << std::endl
@@ -135,6 +305,10 @@ void TrafficManager::genMes(std::vector<Packet*>& packets, uint64_t cyc) {
   }
   else if (traffic_ == "collective_ring_all_reduce") {
     collective_ring_all_reduce(packets);
+    return;
+  }
+  else if (traffic_ == "collective_alltoall") {
+    collective_alltoall(packets);
     return;
   }
   else if (traffic_ == "torus_all_reduce") {
